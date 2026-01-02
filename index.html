@@ -3,122 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bursaspor FM26 Strateji Merkezi</title>
+    <title>FM26 Strateji Tahtası Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --team-color: #1a7a3a; }
-        body { background-color: #0d1117; color: #e6edf3; font-family: 'Inter', sans-serif; }
+        body { background-color: #0d1117; color: #e6edf3; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         
         /* SAHA TASARIMI */
         .pitch { 
-            background: #1e3d24; border: 4px solid #ffffff33; position: relative; height: 700px; width: 100%; border-radius: 20px;
+            background: #1e3d24; border: 4px solid #ffffff33; position: relative; height: 750px; width: 100%; border-radius: 20px;
             background-image: repeating-linear-gradient(#244a2b 0, #244a2b 50px, #1e3d24 50px, #1e3d24 100px);
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.6);
-            transition: background-color 0.5s ease;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+            transition: all 0.5s ease;
         }
-        .pitch.defensive { 
-            background-color: #2b1a1a; 
-            background-image: repeating-linear-gradient(#3d1e1e 0, #3d1e1e 50px, #2b1a1a 50px, #2b1a1a 100px); 
-        }
+        .pitch.defensive { background-color: #2b1a1a; background-image: repeating-linear-gradient(#3d1e1e 0, #3d1e1e 50px, #2b1a1a 50px, #2b1a1a 100px); }
 
-        /* OYUNCU VE FORMA */
-        .player-slot { position: absolute; width: 90px; text-align: center; cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 20; }
-        .player-slot:hover { transform: scale(1.1); }
-        
+        /* OYUNCU SLOTLARI */
+        .player-slot { 
+            position: absolute; width: 100px; text-align: center; z-index: 20;
+            transition: transform 0.2s; padding: 5px; border-radius: 12px;
+        }
+        .player-slot.drag-over { background: rgba(255, 255, 255, 0.15); border: 2px dashed #ffffffaa; transform: scale(1.1); }
+
         .kit-icon { 
-            width: 50px; height: 50px; margin: 0 auto; background-color: var(--team-color); 
+            width: 55px; height: 55px; margin: 0 auto; background-color: var(--team-color); 
             background-image: url('https://upload.wikimedia.org/wikipedia/tr/0/00/Bursaspor_logo.png');
             background-repeat: no-repeat; background-position: center; background-size: 25px;
-            border: 2px solid white; border-radius: 5px; clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 100%, 0% 100%, 0% 20%);
+            border: 2px solid white; border-radius: 8px; 
+            clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 100%, 0% 100%, 0% 20%);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        .player-slot.missing .kit-icon { 
-            background-color: #ef4444 !important; background-image: none; animation: pulse 1.5s infinite; 
+        .player-name-label { 
+            font-size: 11px; font-weight: bold; background: rgba(0,0,0,0.85); padding: 3px 6px; 
+            border-radius: 5px; margin-top: 6px; color: white; min-height: 22px;
+            border: 1px solid rgba(255,255,255,0.1); word-break: break-word;
+            display: flex; align-items: center; justify-content: center;
         }
-        .player-slot.missing .kit-icon::after { content: "!"; color: white; font-weight: bold; font-size: 20px; line-height: 45px; }
 
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        /* YEDEK KULÜBESİ (HAVUZ) */
+        .bench-item {
+            cursor: grab; transition: all 0.2s;
+            background: #161b22; border: 1px solid #30363d;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .bench-item:active { cursor: grabbing; transform: scale(0.95); }
+        .bench-item:hover { border-color: var(--team-color); background: #1c2128; transform: translateX(5px); }
+
+        .pos-label { font-size: 10px; font-weight: 900; color: #ffffffaa; text-transform: uppercase; margin-bottom: 2px; }
         
-        .pos-label { font-size: 11px; font-weight: 900; color: white; text-shadow: 1px 1px 2px black; margin-bottom: 2px; }
-        .player-name-box { font-size: 10px; background: rgba(0,0,0,0.85); padding: 3px; border-radius: 4px; margin-top: 4px; border: 1px solid rgba(255,255,255,0.1); min-height: 18px; }
-        
-        .pitch-lines { position: absolute; inset: 0; pointer-events: none; opacity: 0.4; }
-        .penalty-box { width: 50%; height: 120px; border: 2px solid white; position: absolute; left: 25%; }
-        .center-circle { width: 140px; height: 140px; border: 2px solid white; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        /* KAYDIRMA ÇUBUĞU */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
     </style>
 </head>
-<body class="p-4 lg:p-8">
+<body class="p-4 lg:p-6">
     <div class="max-w-[1600px] mx-auto">
         
         <header class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-2xl">
+            <div class="flex items-center gap-5">
+                <div id="teamLogo" class="w-16 h-16 bg-white rounded-xl flex items-center justify-center font-black text-black text-3xl border-4 border-green-600 shadow-lg">B</div>
+                <div>
+                    <input type="text" id="teamName" oninput="document.getElementById('teamLogo').innerText = this.value[0].toUpperCase()" value="Bursaspor" class="bg-transparent text-2xl font-black text-white border-b-2 border-transparent focus:border-green-500 outline-none w-full transition-all">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">FM26 Strateji Paneli</p>
+                </div>
+            </div>
+
             <div class="space-y-4">
-                <div class="flex items-center gap-4">
-                    <div id="teamIcon" class="w-14 h-14 bg-white rounded-xl flex items-center justify-center font-black text-black text-2xl border-4 border-green-600 shadow-inner">B</div>
-                    <input type="text" id="teamNameInput" oninput="document.getElementById('teamIcon').innerText = this.value[0].toUpperCase()" value="Bursaspor" class="bg-transparent text-2xl font-black text-white border-b-2 border-transparent focus:border-green-500 outline-none transition-all">
-                </div>
-                <div class="flex items-center gap-3">
-                    <input type="color" id="colorPicker" oninput="document.documentElement.style.setProperty('--team-color', this.value)" value="#1a7a3a" class="w-10 h-8 bg-transparent cursor-pointer">
-                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Tema Rengi</span>
-                </div>
-            </div>
-
-            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-inner">
-                <h3 class="text-[10px] font-black text-green-500 mb-3 uppercase tracking-widest">🏃 Oyuncu Ekle</h3>
                 <div class="flex gap-2">
-                    <input type="text" id="playerNameInput" placeholder="Örn: Kerem Matışlı" class="flex-grow bg-black border border-gray-600 rounded-lg p-2 text-xs text-white outline-none focus:border-green-500">
-                    <button onclick="addPlayerToPool()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition-all">EKLE</button>
+                    <input type="text" id="newPlayerName" placeholder="Yeni Oyuncu Ekle..." class="flex-grow bg-black border border-gray-700 rounded-xl p-3 text-sm outline-none focus:border-green-500 text-white">
+                    <button onclick="addPlayerToBench()" class="bg-green-600 hover:bg-green-700 px-6 rounded-xl font-black text-xs transition-all">EKLE</button>
                 </div>
-            </div>
-
-            <div class="flex flex-col justify-center gap-3">
-                <label class="text-[10px] font-black text-gray-500 uppercase text-center tracking-widest">Taktiksel Görünüm</label>
-                <div class="flex bg-black p-1.5 rounded-xl border border-gray-700 shadow-inner">
-                    <button id="modeAttack" onclick="setMode('attack')" class="flex-1 py-2.5 text-xs font-black rounded-lg bg-green-700 text-white transition-all">TOPA SAHİPKEN</button>
-                    <button id="modeDefense" onclick="setMode('defense')" class="flex-1 py-2.5 text-xs font-black rounded-lg text-gray-500 hover:text-white transition-all">TOP RAKİPTEYKEN</button>
-                </div>
-            </div>
-        </header>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div class="lg:col-span-3 space-y-6">
-                <div class="bg-gray-900 p-5 rounded-2xl border border-gray-800 shadow-lg">
-                    <h3 class="text-xs font-black text-gray-400 mb-4 uppercase tracking-tighter">📋 Ana Diziliş</h3>
-                    <select id="formationSelect" onchange="changeFormation()" class="w-full bg-black border border-gray-700 rounded-xl p-3 text-sm font-bold text-white outline-none focus:ring-2 focus:ring-green-500">
-                        <option value="4231_2dos">4-2-3-1 (2 DOS'lu)</option>
-                        <option value="4231">4-2-3-1 (Standart)</option>
+                <div class="flex items-center justify-between bg-black/50 p-2 rounded-lg border border-gray-800">
+                    <div class="flex items-center gap-2">
+                        <input type="color" id="teamColor" oninput="document.documentElement.style.setProperty('--team-color', this.value)" value="#1a7a3a" class="w-8 h-8 bg-transparent cursor-pointer">
+                        <span class="text-[10px] font-bold text-gray-500 uppercase">RENK</span>
+                    </div>
+                    <select id="formationSelect" onchange="initFormation()" class="bg-transparent border-none text-xs font-black text-white outline-none cursor-pointer uppercase">
+                        <option value="4231_2dos">4-2-3-1 (2 DOS)</option>
+                        <option value="4231">4-2-3-1 Geniş</option>
                         <option value="442">4-4-2 Klasik</option>
                         <option value="433">4-3-3 Ofansif</option>
                         <option value="352">3-5-2 Kanat Bekli</option>
                     </select>
                 </div>
+            </div>
 
-                <div class="bg-gray-900 p-5 rounded-2xl border border-gray-800 shadow-lg">
-                    <h3 class="text-xs font-black text-red-500 mb-4 uppercase flex items-center gap-2">
-                        <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span> TRANSFER LİSTESİ
+            <div class="flex flex-col justify-center gap-3">
+                <label class="text-[10px] font-black text-gray-500 uppercase text-center tracking-tighter">Oyun Karakteri</label>
+                <div class="flex bg-black p-1.5 rounded-2xl border border-gray-800 shadow-inner">
+                    <button id="btnAtk" onclick="setTacticMode('attack')" class="flex-1 py-3 text-[10px] font-black rounded-xl bg-green-700 text-white transition-all shadow-lg">TOPA SAHİPKEN</button>
+                    <button id="btnDef" onclick="setTacticMode('defense')" class="flex-1 py-3 text-[10px] font-black rounded-xl text-gray-500 hover:text-white transition-all">TOP RAKİPTEYKEN</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-2">
+                <div class="bg-gray-900 p-5 rounded-3xl border border-gray-800 h-full shadow-xl">
+                    <h3 class="text-[11px] font-black text-red-500 mb-6 uppercase tracking-widest flex items-center gap-2">
+                        <span class="w-2 h-2 bg-red-500 rounded-full animate-ping"></span> EKSİK BÖLGELER
                     </h3>
-                    <ul id="needsList" class="space-y-2 max-h-[300px] overflow-y-auto pr-2">
-                        <li class="text-gray-600 text-[10px] italic text-center py-4 border border-dashed border-gray-800 rounded-lg">Eksik bölgeleri sahada işaretleyin.</li>
-                    </ul>
+                    <div id="transferList" class="space-y-3">
+                        </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-6">
-                <div class="pitch" id="mainPitch">
-                    <div class="pitch-lines">
-                        <div class="penalty-box top-0"></div>
-                        <div class="penalty-box bottom-0" style="bottom: 0;"></div>
-                        <div class="center-circle"></div>
-                    </div>
-                    <div id="playersLayer"></div>
+            <div class="lg:col-span-7">
+                <div class="pitch" id="pitch">
+                    <div id="pitchPlayers"></div>
                 </div>
             </div>
 
             <div class="lg:col-span-3">
-                <div class="bg-gray-900 p-5 rounded-2xl border border-gray-800 h-[700px] flex flex-col shadow-lg">
-                    <h3 class="text-xs font-black text-green-500 mb-4 uppercase tracking-widest">👥 OYUNCU HAVUZU</h3>
-                    <div id="playerPool" class="flex-grow overflow-y-auto space-y-2 pr-2">
+                <div class="bg-gray-900 p-6 rounded-3xl border border-gray-800 h-[750px] flex flex-col shadow-2xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xs font-black text-yellow-500 uppercase tracking-widest">💺 YEDEK KULÜBESİ</h3>
+                        <span id="playerCount" class="bg-yellow-500/10 text-yellow-500 px-3 py-1 rounded-full text-[10px] font-black">0</span>
+                    </div>
+                    <div id="bench" class="flex-grow overflow-y-auto space-y-3 pr-2">
                         </div>
+                    <div class="mt-6 p-4 bg-black/40 rounded-2xl border border-gray-800">
+                        <p class="text-[10px] text-gray-500 italic text-center leading-relaxed">Oyuncuları tutup sahadaki pozisyonlara yerleştirin. İhtiyaç listesi otomatik güncellenir.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -128,109 +136,143 @@
         const formations = {
             "4231_2dos": [
                 {p:"KL", b:"90%", l:"45%"},
-                {p:"SĞB", b:"70%", l:"85%"}, {p:"STP", b:"78%", l:"58%"}, {p:"STP", b:"78%", l:"32%"}, {p:"SLB", b:"70%", l:"5%"},
-                {p:"DOS", b:"60%", l:"58%"}, {p:"DOS", b:"60%", l:"32%"},
-                {p:"SĞK", b:"28%", l:"85%"}, {p:"OOS", b:"32%", l:"45%"}, {p:"SLK", b:"28%", l:"5%"},
+                {p:"SĞB", b:"70%", l:"82%"}, {p:"STP", b:"78%", l:"58%"}, {p:"STP", b:"78%", l:"32%"}, {p:"SLB", b:"70%", l:"8%"},
+                {p:"DOS", b:"60%", l:"55%"}, {p:"DOS", b:"60%", l:"35%"},
+                {p:"SĞK", b:"28%", l:"82%"}, {p:"OOS", b:"32%", l:"45%"}, {p:"SLK", b:"28%", l:"8%"},
                 {p:"SNT", b:"10%", l:"45%"}
             ],
-            "4231": [{p:"KL",b:"90%",l:"45%"},{p:"SĞB",b:"70%",l:"85%"},{p:"STP",b:"78%",l:"58%"},{p:"STP",b:"78%",l:"32%"},{p:"SLB",b:"70%",l:"5%"},{p:"MO",b:"55%",l:"55%"},{p:"MO",b:"55%",l:"35%"},{p:"SĞK",b:"28%",l:"85%"},{p:"OOS",b:"32%",l:"45%"},{p:"SLK",b:"28%",l:"5%"},{p:"SNT",b:"10%",l:"45%"}],
-            "442": [{p:"KL",b:"90%",l:"45%"},{p:"SĞB",b:"70%",l:"85%"},{p:"STP",b:"78%",l:"58%"},{p:"STP",b:"78%",l:"32%"},{p:"SLB",b:"70%",l:"5%"},{p:"SĞO",b:"45%",l:"85%"},{p:"MO",b:"50%",l:"58%"},{p:"MO",b:"50%",l:"32%"},{p:"SLO",b:"45%",l:"5%"},{p:"SNT",b:"15%",l:"58%"},{p:"SNT",b:"15%",l:"32%"}],
-            "433": [{p:"KL",b:"90%",l:"45%"},{p:"SĞB",b:"70%",l:"85%"},{p:"STP",b:"78%",l:"58%"},{p:"STP",b:"78%",l:"32%"},{p:"SLB",b:"70%",l:"5%"},{p:"MO",b:"58%",l:"72%"},{p:"MO",b:"60%",l:"45%"},{p:"MO",b:"58%",l:"18%"},{p:"SĞK",b:"25%",l:"85%"},{p:"SNT",b:"10%",l:"45%"},{p:"SLK",b:"25%",l:"5%"}],
+            "4231": [{p:"KL",b:"90%",l:"45%"},{p:"SĞB",b:"70%",l:"82%"},{p:"STP",b:"78%",l:"58%"},{p:"STP",b:"78%",l:"32%"},{p:"SLB",b:"70%",l:"8%"},{p:"MO",b:"55%",l:"55%"},{p:"MO",b:"55%",l:"35%"},{p:"SĞK",b:"28%",l:"82%"},{p:"OOS",b:"32%",l:"45%"},{p:"SLK",b:"28%",l:"8%"},{p:"SNT",b:"10%",l:"45%"}],
+            "442": [{p:"KL",b:"90%",l:"45%"},{p:"SĞB",b:"70%",l:"82%"},{p:"STP",b:"78%",l:"58%"},{p:"STP",b:"78%",l:"32%"},{p:"SLB",b:"70%",l:"8%"},{p:"SĞO",b:"45%",l:"82%"},{p:"MO",b:"50%",l:"58%"},{p:"MO",b:"50%",l:"32%"},{p:"SLO",b:"45%",l:"8%"},{p:"SNT",b:"15%",l:"58%"},{p:"SNT",b:"15%",l:"32%"}],
+            "433": [{p:"KL",b:"90%",l:"45%"},{p:"SĞB",b:"70%",l:"82%"},{p:"STP",b:"78%",l:"58%"},{p:"STP",b:"78%",l:"32%"},{p:"SLB",b:"70%",l:"8%"},{p:"MO",b:"58%",l:"72%"},{p:"MO",b:"60%",l:"45%"},{p:"MO",b:"58%",l:"18%"},{p:"SĞK",b:"25%",l:"82%"},{p:"SNT",b:"10%",l:"45%"},{p:"SLK",b:"25%",l:"8%"}],
             "352": [{p:"KL",b:"90%",l:"45%"},{p:"STP",b:"78%",l:"68%"},{p:"STP",b:"80%",l:"45%"},{p:"STP",b:"78%",l:"22%"},{p:"SĞKB",b:"50%",l:"88%"},{p:"MO",b:"55%",l:"60%"},{p:"MO",b:"55%",l:"45%"},{p:"MO",b:"55%",l:"30%"},{p:"SLKB",b:"50%",l:"2%"},{p:"SNT",b:"15%",l:"58%"},{p:"SNT",b:"15%",l:"32%"}]
         };
 
-        let selectedNeeds = new Set();
-        let playersInPool = [];
+        let benchPlayers = ["Kerem Matışlı", "Yiğit Fidan", "Ertuğrul Ersoy", "Sedat Cengiz", "Mücahit Can Akçay"];
 
-        function addPlayerToPool() {
-            const nameInput = document.getElementById('playerNameInput');
-            if(!nameInput.value.trim()) return;
-            playersInPool.push(nameInput.value.trim());
-            updatePoolUI();
-            nameInput.value = '';
+        function addPlayerToBench() {
+            const input = document.getElementById('newPlayerName');
+            if(!input.value.trim()) return;
+            benchPlayers.push(input.value.trim());
+            input.value = '';
+            renderBench();
         }
 
-        function updatePoolUI() {
-            const pool = document.getElementById('playerPool');
-            pool.innerHTML = playersInPool.map((name, index) => `
-                <div class="bg-gray-800 p-3 rounded-xl border border-gray-700 flex justify-between items-center group hover:border-green-500 transition-all">
-                    <span class="text-xs font-bold text-gray-200">🏃 ${name}</span>
-                    <button onclick="removePlayerFromPool(${index})" class="text-red-500 opacity-0 group-hover:opacity-100 transition-all text-sm font-bold">✕</button>
+        function renderBench() {
+            const container = document.getElementById('bench');
+            container.innerHTML = benchPlayers.map((name, i) => `
+                <div class="bench-item p-4 rounded-2xl flex items-center gap-4 font-black text-xs" 
+                     draggable="true" ondragstart="drag(event, '${name}', -1)">
+                    <div class="w-1.5 h-6 bg-green-500 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
+                    ${name}
                 </div>
             `).join('');
+            document.getElementById('playerCount').innerText = benchPlayers.length;
         }
 
-        function removePlayerFromPool(index) {
-            playersInPool.splice(index, 1);
-            updatePoolUI();
-        }
+        function initFormation() {
+            const fKey = document.getElementById('formationSelect').value;
+            const container = document.getElementById('pitchPlayers');
+            container.innerHTML = '';
 
-        function setMode(mode) {
-            const pitch = document.getElementById('mainPitch');
-            const btnAtk = document.getElementById('modeAttack');
-            const btnDef = document.getElementById('modeDefense');
-            
-            if(mode === 'defense') {
-                pitch.classList.add('defensive');
-                btnDef.classList.add('bg-red-900', 'text-white');
-                btnDef.classList.remove('text-gray-500');
-                btnAtk.classList.remove('bg-green-700', 'text-white');
-                btnAtk.classList.add('text-gray-500');
-            } else {
-                pitch.classList.remove('defensive');
-                btnAtk.classList.add('bg-green-700', 'text-white');
-                btnAtk.classList.remove('text-gray-500');
-                btnDef.classList.remove('bg-red-900', 'text-white');
-                btnDef.classList.add('text-gray-500');
-            }
-        }
-
-        function changeFormation() {
-            renderFormation(formations[document.getElementById('formationSelect').value]);
-        }
-
-        function renderFormation(playerPositions) {
-            const layer = document.getElementById('playersLayer');
-            layer.innerHTML = '';
-            playerPositions.forEach((pos, index) => {
-                const key = `${pos.p}-${index}`;
-                const isMissing = selectedNeeds.has(key);
+            formations[fKey].forEach((pos, i) => {
+                const slotId = `slot-${i}`;
                 const div = document.createElement('div');
-                div.className = `player-slot ${isMissing ? 'missing' : ''}`;
+                div.className = 'player-slot';
                 div.style.bottom = pos.b;
                 div.style.left = pos.l;
-                
                 div.innerHTML = `
                     <div class="pos-label">${pos.p}</div>
-                    <div class="kit-icon"></div>
-                    <div class="player-name-box text-white font-bold">${isMissing ? 'ARANIYOR' : '---'}</div>
+                    <div class="kit-icon" ondrop="drop(event, '${slotId}')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                    <div class="player-name-label" id="${slotId}">---</div>
                 `;
-                
-                div.onclick = () => {
-                    if(selectedNeeds.has(key)) selectedNeeds.delete(key);
-                    else selectedNeeds.add(key);
-                    renderFormation(playerPositions);
-                    updateNeedsUI();
-                };
-                layer.appendChild(div);
+                container.appendChild(div);
             });
+            updateTransferNeeds();
         }
 
-        function updateNeedsUI() {
-            const list = document.getElementById('needsList');
-            if(selectedNeeds.size === 0) {
-                list.innerHTML = '<li class="text-gray-600 text-[10px] italic text-center py-4 border border-dashed border-gray-800 rounded-lg">Eksik bölgeleri sahada işaretleyin.</li>';
-                return;
+        function allowDrop(ev) {
+            ev.preventDefault();
+            const slot = ev.target.closest('.player-slot');
+            if(slot) slot.classList.add('drag-over');
+        }
+
+        function dragLeave(ev) {
+            const slot = ev.target.closest('.player-slot');
+            if(slot) slot.classList.remove('drag-over');
+        }
+
+        function drag(ev, name, fromSlot) {
+            ev.dataTransfer.setData("name", name);
+            ev.dataTransfer.setData("fromSlot", fromSlot);
+        }
+
+        function drop(ev, toSlotId) {
+            ev.preventDefault();
+            const name = ev.dataTransfer.getData("name");
+            const fromSlot = ev.dataTransfer.getData("fromSlot");
+            
+            const slot = ev.target.closest('.player-slot');
+            if(slot) slot.classList.remove('drag-over');
+
+            const label = document.getElementById(toSlotId);
+            const oldName = label.innerText;
+
+            // Mevkiye yeni ismi yaz
+            label.innerText = name;
+            label.classList.add('text-green-400');
+
+            // Eğer havuzdan geldiyse havuzdan çıkar
+            if (fromSlot === "-1") {
+                benchPlayers = benchPlayers.filter(p => p !== name);
+                // Eğer mevkide eski bir isim varsa onu havuza geri yolla
+                if(oldName !== "---") benchPlayers.push(oldName);
+                renderBench();
             }
-            list.innerHTML = Array.from(selectedNeeds).map(item => `
-                <li class="bg-red-950/30 border border-red-900/50 p-3 rounded-xl flex justify-between items-center group">
-                    <span class="text-[10px] font-black text-red-200">🚩 ${item.split('-')[0]} TAKVİYESİ</span>
-                </li>
-            `).join('');
+
+            updateTransferNeeds();
         }
 
-        // Başlangıç
-        changeFormation();
+        function setTacticMode(mode) {
+            const p = document.getElementById('pitch');
+            const bA = document.getElementById('btnAtk');
+            const bD = document.getElementById('btnDef');
+            if(mode === 'defense') {
+                p.classList.add('defensive');
+                bD.classList.add('bg-red-900', 'text-white', 'shadow-lg');
+                bD.classList.remove('text-gray-500');
+                bA.classList.remove('bg-green-700', 'text-white', 'shadow-lg');
+                bA.classList.add('text-gray-500');
+            } else {
+                p.classList.remove('defensive');
+                bA.classList.add('bg-green-700', 'text-white', 'shadow-lg');
+                bA.classList.remove('text-gray-500');
+                bD.classList.remove('bg-red-900', 'text-white', 'shadow-lg');
+                bD.classList.add('text-gray-500');
+            }
+        }
+
+        function updateTransferNeeds() {
+            const labels = document.querySelectorAll('.player-name-label');
+            const tList = document.getElementById('transferList');
+            let needs = [];
+            labels.forEach(l => {
+                if(l.innerText === "---") {
+                    needs.push(l.previousElementSibling.previousElementSibling.innerText);
+                }
+            });
+            
+            const uniqueNeeds = [...new Set(needs)];
+            tList.innerHTML = uniqueNeeds.length ? uniqueNeeds.map(n => `
+                <div class="bg-red-500/10 border border-red-500/20 p-3 rounded-2xl text-[10px] font-black text-red-400 flex items-center justify-between">
+                    <span>${n} İHTİYACI</span>
+                    <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                </div>
+            `).join('') : '<div class="text-[10px] text-gray-600 italic text-center py-4">Kadro tamamlandı!</div>';
+        }
+
+        // İlk Çalıştırma
+        renderBench();
+        initFormation();
     </script>
 </body>
 </html>
