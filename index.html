@@ -3,100 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bursaspor Kadro Planlayıcı</title>
+    <title>FM26 Strateji & Kadro Planlayıcı</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0a0f0a; color: #e5e7eb; font-family: 'Segoe UI', sans-serif; }
+        :root { --team-color: #1a7a3a; }
+        body { background-color: #0d1117; color: #e6edf3; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        
+        /* SAHA TASARIMI */
         .pitch { 
             background: #1e3d24; 
             border: 4px solid #ffffff33; 
             position: relative; 
             height: 700px; 
-            width: 100%;
-            border-radius: 10px;
+            width: 100%; 
+            border-radius: 20px;
             background-image: repeating-linear-gradient(#244a2b 0, #244a2b 50px, #1e3d24 50px, #1e3d24 100px);
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.7);
+            overflow: hidden;
         }
-        .penalty-box { width: 50%; height: 120px; border: 2px solid #ffffff66; position: absolute; left: 25%; }
-        .center-circle { width: 140px; height: 140px; border: 2px solid #ffffff66; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .half-line { width: 100%; height: 2px; background: #ffffff66; position: absolute; top: 50%; }
+        .pitch-lines { position: absolute; inset: 0; pointer-events: none; }
+        .penalty-box { width: 50%; height: 130px; border: 2px solid #ffffff44; position: absolute; left: 25%; }
+        .center-circle { width: 140px; height: 140px; border: 2px solid #ffffff44; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .half-line { width: 100%; height: 2px; background: #ffffff44; position: absolute; top: 50%; }
 
-        .player-slot {
-            position: absolute;
-            width: 80px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            z-index: 10;
+        /* OYUNCU VE FORMA */
+        .player-slot { 
+            position: absolute; 
+            width: 90px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            z-index: 20; 
         }
-        .kit-icon {
-            width: 50px;
-            height: 50px;
-            margin: 0 auto;
-            background: url('https://upload.wikimedia.org/wikipedia/tr/0/00/Bursaspor_logo.png') no-repeat center;
+        .player-slot:hover { transform: scale(1.15); }
+        
+        .kit-icon { 
+            width: 55px; height: 55px; margin: 0 auto; 
+            background-color: var(--team-color); 
+            background-image: url('https://upload.wikimedia.org/wikipedia/tr/0/00/Bursaspor_logo.png');
+            background-repeat: no-repeat;
+            background-position: center;
             background-size: 25px;
-            background-color: #1a7a3a;
-            border: 2px solid white;
-            border-radius: 5px;
+            border: 2px solid white; 
+            border-radius: 6px; 
             clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 100%, 0% 100%, 0% 20%);
+            transition: all 0.3s ease;
         }
-        .player-slot.missing .kit-icon { background-color: #dc2626; box-shadow: 0 0 15px #dc2626; }
-        .player-name { font-size: 11px; font-weight: bold; background: rgba(0,0,0,0.7); padding: 2px 4px; border-radius: 3px; margin-top: 4px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .pos-label { font-size: 10px; color: #fff; font-weight: 800; text-shadow: 1px 1px 2px black; }
+
+        /* TRANSFER ALARMI (PULSE EFEKTİ) */
+        .player-slot.missing .kit-icon { 
+            background-color: #ef4444 !important; 
+            background-image: none;
+            animation: pulse-red 1.5s infinite; 
+            border-color: #ffcfcf;
+        }
+        .player-slot.missing .kit-icon::after { content: "?"; color: white; font-size: 24px; font-weight: bold; line-height: 50px; }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .pos-label { font-size: 11px; font-weight: 900; color: white; text-shadow: 1px 1px 3px black; margin-bottom: 2px; }
+        .player-name { font-size: 10px; background: rgba(0,0,0,0.85); padding: 2px 4px; border-radius: 4px; margin-top: 4px; border: 1px solid rgba(255,255,255,0.1); }
+        
+        /* KAYDIRMA ÇUBUĞU */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
     </style>
 </head>
-<body class="p-4">
-    <div class="max-w-7xl mx-auto">
-        <header class="flex flex-wrap justify-between items-center mb-6 bg-gray-900 p-4 rounded-xl border-l-8 border-green-600">
-            <div class="flex items-center gap-4">
-                <img src="https://upload.wikimedia.org/wikipedia/tr/0/00/Bursaspor_logo.png" alt="Bursaspor" class="w-16 h-16 object-contain">
+<body class="p-4 md:p-8">
+    <div class="max-w-[1600px] mx-auto">
+        
+        <header class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-2xl">
+            <div class="flex items-center gap-5">
+                <div id="teamLogoDisplay" class="w-16 h-16 bg-white rounded-xl flex items-center justify-center font-black text-black text-3xl shadow-lg border-4 border-green-600">B</div>
                 <div>
-                    <h1 class="text-3xl font-bold text-white">BURSASPOR <span class="text-green-500 text-xl italic">FM26 Kadro Planı</span></h1>
-                    <p id="squadInfo" class="text-gray-400 text-sm">Kadro dosyasını yükleyin ve eksikleri belirleyin.</p>
+                    <input type="text" id="teamNameInput" oninput="updateTeamName()" value="Bursaspor" class="bg-transparent text-3xl font-black text-white border-b-2 border-transparent focus:border-green-500 outline-none transition-all w-full">
+                    <p class="text-xs text-gray-500 mt-1 uppercase tracking-widest font-bold">Kadro Planlama Merkezi</p>
                 </div>
             </div>
-            <div class="flex gap-2">
+
+            <div class="flex items-center gap-8 justify-center border-x border-gray-800 px-6">
+                <div class="text-center">
+                    <label class="block text-[10px] uppercase text-gray-500 font-black mb-2">Tema Rengi</label>
+                    <input type="color" id="colorPicker" oninput="updateThemeColor()" value="#1a7a3a" class="h-10 w-20 cursor-pointer bg-transparent">
+                </div>
+                <div class="flex-grow">
+                    <label class="block text-[10px] uppercase text-gray-500 font-black mb-2 text-center">Taktiksel Ofansiflik</label>
+                    <input type="range" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500">
+                    <div class="flex justify-between text-[10px] mt-1 text-gray-500 font-bold"><span>DEFANSİF</span><span>OFANSİF</span></div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3">
                 <input type="file" id="fmFile" class="hidden" onchange="handleFile(this)">
-                <button onclick="document.getElementById('fmFile').click()" class="bg-green-600 text-white hover:bg-green-700 px-5 py-2 rounded-md font-bold transition">
-                    FM LİSTESİ YÜKLE (.CSV)
+                <button onclick="document.getElementById('fmFile').click()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl text-sm font-black transition-all transform hover:scale-105 shadow-lg flex items-center gap-2">
+                    <span>📥</span> FM CSV YÜKLE
                 </button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div class="space-y-4">
-                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                    <label class="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Taktik Diziliş</label>
-                    <select id="formationSelect" onchange="changeFormation()" class="w-full bg-black border border-gray-600 rounded p-2 text-white outline-none focus:border-green-500">
-                        <option value="4231">4 - 2 - 3 - 1 (Geniş)</option>
-                        <option value="442">4 - 4 - 2 (Klasik)</option>
-                        <option value="433">4 - 3 - 3 (Ofansif)</option>
-                        <option value="352">3 - 5 - 2 (Kanat Bekli)</option>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <div class="lg:col-span-3 space-y-6">
+                <div class="bg-gray-900 p-5 rounded-2xl border border-gray-800">
+                    <h3 class="text-xs font-black text-gray-400 mb-4 uppercase tracking-tighter">📋 Taktik Diziliş</h3>
+                    <select id="formationSelect" onchange="changeFormation()" class="w-full bg-black border border-gray-700 rounded-xl p-3 text-sm font-bold text-white outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="4231">4-2-3-1 (Geniş)</option>
+                        <option value="442">4-4-2 (Klasik)</option>
+                        <option value="433">4-3-3 (Ofansif)</option>
+                        <option value="352">3-5-2 (Kanat Bekli)</option>
+                        <option value="4222">4-2-2-2 (Brezilya)</option>
+                        <option value="5212">5-2-1-2 (Defansif)</option>
+                        <option value="41212">4-1-2-1-2 (Elmas)</option>
+                        <option value="424">4-2-4 (Tam Baskı)</option>
+                        <option value="343">3-4-3 (Cruyff)</option>
                     </select>
                 </div>
 
-                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                    <h3 class="font-bold text-red-500 mb-3 uppercase tracking-wider text-sm">🔴 Transfer Gerekenler</h3>
-                    <ul id="needsList" class="space-y-2">
-                        <li class="text-gray-500 text-xs italic text-center py-4">Sahada boşlukları tıklayarak işaretleyin</li>
+                <div class="bg-gray-900 p-5 rounded-2xl border border-gray-800">
+                    <h3 class="text-xs font-black text-red-500 mb-4 uppercase tracking-tighter flex items-center gap-2">
+                        <span class="animate-ping w-2 h-2 bg-red-500 rounded-full"></span> ACİL TRANSFERLER
+                    </h3>
+                    <ul id="needsList" class="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                        <li class="text-gray-600 text-xs italic text-center py-4 border border-dashed border-gray-800 rounded-lg">Sahada eksik bölgelere tıklayın.</li>
                     </ul>
                 </div>
             </div>
 
-            <div class="lg:col-span-2">
+            <div class="lg:col-span-6">
                 <div class="pitch" id="pitchContainer">
-                    <div class="penalty-box top-0"></div>
-                    <div class="penalty-box bottom-0" style="bottom: 0;"></div>
-                    <div class="half-line"></div>
-                    <div class="center-circle"></div>
+                    <div class="pitch-lines">
+                        <div class="penalty-box top-0"></div>
+                        <div class="penalty-box bottom-0" style="bottom: 0;"></div>
+                        <div class="half-line"></div>
+                        <div class="center-circle"></div>
+                    </div>
                     <div id="playersLayer"></div>
                 </div>
             </div>
 
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 flex flex-col h-[700px]">
-                <h3 class="font-bold text-green-500 mb-3 uppercase tracking-wider text-sm">📋 Oyuncu Havuzu</h3>
-                <div id="squadList" class="overflow-y-auto flex-grow text-xs space-y-1 pr-2">
-                    <p class="text-gray-500 italic">Henüz dosya yüklenmedi.</p>
+            <div class="lg:col-span-3 space-y-6">
+                <div class="bg-gray-900 p-5 rounded-2xl border border-gray-800">
+                    <h3 class="text-xs font-black text-yellow-500 mb-4 uppercase tracking-tighter flex items-center gap-2">⭐ WONDERKID RADARI</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="wkInput" placeholder="Oyuncu ismi..." class="flex-grow bg-black border border-gray-700 p-2 rounded-lg text-xs outline-none focus:border-yellow-500 text-white">
+                        <button onclick="addWonderkid()" class="bg-yellow-600 px-3 rounded-lg text-black font-bold text-lg">+</button>
+                    </div>
+                    <div id="wonderkidList" class="space-y-2 max-h-[150px] overflow-y-auto"></div>
+                </div>
+
+                <div class="bg-gray-900 p-5 rounded-2xl border border-gray-800 flex flex-col h-[415px]">
+                    <h3 class="text-xs font-black text-green-500 mb-4 uppercase tracking-tighter">🏃 MEVCUT OYUNCULAR</h3>
+                    <div id="squadList" class="overflow-y-auto flex-grow text-[11px] space-y-2 pr-2">
+                        <div class="text-gray-600 italic">CSV dosyası yükleyerek oyuncuları listeleyin.</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -104,34 +167,30 @@
 
     <script>
         const formations = {
-            "4231": [
-                {p: "KL", b: "90%", l: "45%"},
-                {p: "SĞB", b: "70%", l: "85%"}, {p: "STP", b: "75%", l: "58%"}, {p: "STP", b: "75%", l: "32%"}, {p: "SLB", b: "70%", l: "5%"},
-                {p: "MO", b: "55%", l: "55%"}, {p: "MO", b: "55%", l: "35%"},
-                {p: "SĞK", b: "25%", l: "85%"}, {p: "OOS", b: "30%", l: "45%"}, {p: "SLK", b: "25%", l: "5%"},
-                {p: "SNT", b: "10%", l: "45%"}
-            ],
-            "442": [
-                {p: "KL", b: "90%", l: "45%"},
-                {p: "SĞB", b: "70%", l: "85%"}, {p: "STP", b: "75%", l: "58%"}, {p: "STP", b: "75%", l: "32%"}, {p: "SLB", b: "70%", l: "5%"},
-                {p: "SĞO", b: "45%", l: "85%"}, {p: "MO", b: "50%", l: "58%"}, {p: "MO", b: "50%", l: "32%"}, {p: "SLO", b: "45%", l: "5%"},
-                {p: "SNT", b: "15%", l: "58%"}, {p: "SNT", b: "15%", l: "32%"}
-            ],
-            "433": [
-                {p: "KL", b: "90%", l: "45%"},
-                {p: "SĞB", b: "70%", l: "85%"}, {p: "STP", b: "75%", l: "58%"}, {p: "STP", b: "75%", l: "32%"}, {p: "SLB", b: "70%", l: "5%"},
-                {p: "MO", b: "55%", l: "70%"}, {p: "MO", b: "55%", l: "45%"}, {p: "MO", b: "55%", l: "20%"},
-                {p: "SĞK", b: "25%", l: "85%"}, {p: "SNT", b: "10%", l: "45%"}, {p: "SLK", b: "25%", l: "5%"}
-            ],
-            "352": [
-                {p: "KL", b: "90%", l: "45%"},
-                {p: "STP", b: "78%", l: "65%"}, {p: "STP", b: "80%", l: "45%"}, {p: "STP", b: "78%", l: "25%"},
-                {p: "SĞKB", b: "50%", l: "88%"}, {p: "MO", b: "55%", l: "60%"}, {p: "MO", b: "55%", l: "45%"}, {p: "MO", b: "55%", l: "30%"}, {p: "SLKB", b: "50%", l: "2%"},
-                {p: "SNT", b: "15%", l: "58%"}, {p: "SNT", b: "15%", l: "32%"}
-            ]
+            "4231": [{p:"KL",b:"90%",l:"45%"},{p:"SĞB",b:"72%",l:"85%"},{p:"STP",b:"78%",l:"58%"},{p:"STP",b:"78%",l:"32%"},{p:"SLB",b:"72%",l:"5%"},{p:"MO",b:"55%",l:"55%"},{p:"MO",b:"55%",l:"35%"},{p:"SĞK",b:"28%",l:"85%"},{p:"OOS",b:"32%",l:"45%"},{p:"SLK",b:"28%",l:"5%"},{p:"SNT",b:"10%",l:"45%"}],
+            "442": [{p:"KL",b:"90%",l:"45%"},{p:"SĞB",b:"72%",l:"85%"},{p:"STP",b:"78%",l:"58%"},{p:"STP",b:"78%",l:"32%"},{p:"SLB",b:"72%",l:"5%"},{p:"SĞO",b:"45%",l:"85%"},{p:"MO",b:"50%",l:"58%"},{p:"MO",b:"50%",l:"32%"},{p:"SLO",b:"45%",l:"5%"},{p:"SNT",b:"15%",l:"58%"},{p:"SNT",b:"15%",l:"32%"}],
+            "433": [{p:"KL",b:"90%",l:"45%"},{p:"SĞB",b:"72%",l:"85%"},{p:"STP",b:"78%",l:"58%"},{p:"STP",b:"78%",l:"32%"},{p:"SLB",b:"72%",l:"5%"},{p:"MO",b:"58%",l:"72%"},{p:"MO",b:"60%",l:"45%"},{p:"MO",b:"58%",l:"18%"},{p:"SĞK",b:"25%",l:"85%"},{p:"SNT",b:"10%",l:"45%"},{p:"SLK",b:"25%",l:"5%"}],
+            "352": [{p:"KL",b:"90%",l:"45%"},{p:"STP",b:"78%",l:"68%"},{p:"STP",b:"80%",l:"45%"},{p:"STP",b:"78%",l:"22%"},{p:"SĞKB",b:"50%",l:"88%"},{p:"MO",b:"55%",l:"60%"},{p:"MO",b:"55%",l:"45%"},{p:"MO",b:"55%",l:"30%"},{p:"SLKB",b:"50%",l:"2%"},{p:"SNT",b:"15%",l:"58%"},{p:"SNT",b:"15%",l:"32%"}],
+            "4222": [{p:"KL",b:"90%",l:"45%"},{p:"SĞB",b:"72%",l:"85%"},{p:"STP",b:"78%",l:"58%"},{p:"STP",b:"78%",l:"32%"},{p:"SLB",b:"72%",l:"5%"},{p:"MO",b:"55%",l:"55%"},{p:"MO",b:"55%",l:"35%"},{p:"OOS",b:"30%",l:"65%"},{p:"OOS",b:"30%",l:"25%"},{p:"SNT",b:"12%",l:"58%"},{p:"SNT",b:"12%",l:"32%"}],
+            "5212": [{p:"KL",b:"90%",l:"45%"},{p:"SĞKB",b:"65%",l:"88%"},{p:"STP",b:"78%",l:"65%"},{p:"STP",b:"82%",l:"45%"},{p:"STP",b:"78%",l:"25%"},{p:"SLKB",b:"65%",l:"2%"},{p:"MO",b:"50%",l:"55%"},{p:"MO",b:"50%",l:"35%"},{p:"OOS",b:"30%",l:"45%"},{p:"SNT",b:"12%",l:"58%"},{p:"SNT",b:"12%",l:"32%"}],
+            "41212": [{p:"KL",b:"90%",l:"45%"},{p:"SĞB",b:"72%",l:"85%"},{p:"STP",b:"78%",l:"58%"},{p:"STP",b:"78%",l:"32%"},{p:"SLB",b:"72%",l:"5%"},{p:"DOS",b:"60%",l:"45%"},{p:"MO",b:"48%",l:"65%"},{p:"MO",b:"48%",l:"25%"},{p:"OOS",b:"32%",l:"45%"},{p:"SNT",b:"12%",l:"58%"},{p:"SNT",b:"12%",l:"32%"}],
+            "424": [{p:"KL",b:"90%",l:"45%"},{p:"SĞB",b:"72%",l:"85%"},{p:"STP",b:"78%",l:"58%"},{p:"STP",b:"78%",l:"32%"},{p:"SLB",b:"72%",l:"5%"},{p:"MO",b:"55%",l:"55%"},{p:"MO",b:"55%",l:"35%"},{p:"SĞK",b:"20%",l:"88%"},{p:"SNT",b:"12%",l:"58%"},{p:"SNT",b:"12%",l:"32%"},{p:"SLK",b:"20%",l:"2%"}],
+            "343": [{p:"KL",b:"90%",l:"45%"},{p:"STP",b:"78%",l:"65%"},{p:"STP",b:"80%",l:"45%"},{p:"STP",b:"78%",l:"25%"},{p:"SĞO",b:"50%",l:"88%"},{p:"MO",b:"55%",l:"55%"},{p:"MO",b:"55%",l:"35%"},{p:"SLO",b:"50%",l:"2%"},{p:"SĞK",b:"20%",l:"80%"},{p:"SNT",b:"10%",l:"45%"},{p:"SLK",b:"20%",l:"10%"}]
         };
 
         let selectedNeeds = new Set();
+
+        function updateTeamName() {
+            const name = document.getElementById('teamNameInput').value;
+            document.title = name + " | Planlayıcı";
+            document.getElementById('teamLogoDisplay').innerText = name.charAt(0).toUpperCase();
+        }
+
+        function updateThemeColor() {
+            const color = document.getElementById('colorPicker').value;
+            document.documentElement.style.setProperty('--team-color', color);
+            document.getElementById('teamLogoDisplay').style.borderColor = color;
+        }
 
         function changeFormation() {
             const f = document.getElementById('formationSelect').value;
@@ -143,15 +202,16 @@
             layer.innerHTML = '';
             players.forEach((player, index) => {
                 const key = `${player.p}-${index}`;
+                const isMissing = selectedNeeds.has(key);
                 const div = document.createElement('div');
-                div.className = `player-slot ${selectedNeeds.has(key) ? 'missing' : ''}`;
+                div.className = `player-slot ${isMissing ? 'missing' : ''}`;
                 div.style.bottom = player.b;
                 div.style.left = player.l;
                 
                 div.innerHTML = `
                     <div class="pos-label">${player.p}</div>
                     <div class="kit-icon"></div>
-                    <div class="player-name">Eksik Bölge</div>
+                    <div class="player-name text-white">${isMissing ? 'TRANSFER!' : 'BOŞ'}</div>
                 `;
                 
                 div.onclick = () => toggleNeed(player.p, index, div);
@@ -164,7 +224,7 @@
             if (selectedNeeds.has(key)) {
                 selectedNeeds.delete(key);
                 el.classList.remove('missing');
-                el.querySelector('.player-name').innerText = "Eksik Bölge";
+                el.querySelector('.player-name').innerText = "BOŞ";
             } else {
                 selectedNeeds.add(key);
                 el.classList.add('missing');
@@ -176,35 +236,47 @@
         function updateNeedsList() {
             const list = document.getElementById('needsList');
             if (selectedNeeds.size === 0) {
-                list.innerHTML = '<li class="text-gray-500 text-xs italic text-center py-4">Sahada boşlukları tıklayarak işaretleyin</li>';
+                list.innerHTML = '<li class="text-gray-600 text-xs italic text-center py-4 border border-dashed border-gray-800 rounded-lg">Sahada eksik bölgelere tıklayın.</li>';
                 return;
             }
-            list.innerHTML = Array.from(selectedNeeds).map(item => {
-                const pName = item.split('-')[0];
-                return `<li class="bg-red-950 border border-red-800 p-3 rounded-lg text-red-200 text-xs font-bold flex items-center gap-2">
-                    <span class="bg-red-600 text-white px-1 rounded">ACİL</span> ${pName} Mevkisi Takviye Edilmeli
-                </li>`;
-            }).join('');
+            list.innerHTML = Array.from(selectedNeeds).map(item => `
+                <li class="bg-red-900/20 border border-red-900/40 p-3 rounded-xl flex justify-between items-center group">
+                    <span class="text-xs font-bold text-red-200">🔴 ${item.split('-')[0]} TAKVİYESİ</span>
+                    <span class="text-[10px] bg-red-600 px-2 py-1 rounded-md font-black">ACİL</span>
+                </li>
+            `).join('');
+        }
+
+        function addWonderkid() {
+            const input = document.getElementById('wkInput');
+            if (!input.value) return;
+            const list = document.getElementById('wonderkidList');
+            const div = document.createElement('div');
+            div.className = "bg-gray-800 p-2 rounded-lg text-xs flex justify-between items-center border-l-4 border-yellow-500";
+            div.innerHTML = `<span>⭐ ${input.value}</span><button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-white">✕</button>`;
+            list.appendChild(div);
+            input.value = '';
         }
 
         function handleFile(input) {
             const reader = new FileReader();
             reader.onload = function() {
-                const text = reader.result;
-                const rows = text.split('\n');
-                const squadListDiv = document.getElementById('squadList');
-                squadListDiv.innerHTML = rows.map((line, i) => {
+                const rows = reader.result.split('\n');
+                const squadDiv = document.getElementById('squadList');
+                squadDiv.innerHTML = rows.map((line, i) => {
                     if(i === 0 || !line.trim()) return '';
-                    return `<div class="bg-gray-700/50 p-2 rounded border border-gray-600 hover:bg-green-900/30 transition cursor-default">
-                        🟢 ${line.split(',')[0]}
+                    return `<div class="bg-gray-800/40 p-2 rounded-lg border border-gray-700 flex justify-between">
+                        <span>🟢 ${line.split(',')[0]}</span>
+                        <span class="text-[9px] text-gray-500">HAZIR</span>
                     </div>`;
                 }).join('');
-                document.getElementById('squadInfo').innerText = "Toplam " + (rows.length - 1) + " oyuncu başarıyla yüklendi.";
             };
             reader.readAsText(input.files[0]);
         }
 
+        // Başlangıç Kurulumu
         changeFormation();
+        updateThemeColor();
     </script>
 </body>
 </html>
