@@ -17,7 +17,6 @@
             background-image: repeating-linear-gradient(#244a2b 0, #244a2b 50px, #1e3d24 50px, #1e3d24 100px);
             box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
         }
-        /* Saha Çizgileri */
         .penalty-box { width: 50%; height: 120px; border: 2px solid #ffffff66; position: absolute; left: 25%; }
         .center-circle { width: 140px; height: 140px; border: 2px solid #ffffff66; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
         .half-line { width: 100%; height: 2px; background: #ffffff66; position: absolute; top: 50%; }
@@ -35,15 +34,15 @@
             height: 50px;
             margin: 0 auto;
             background: url('https://upload.wikimedia.org/wikipedia/tr/0/00/Bursaspor_logo.png') no-repeat center;
-            background-size: 25px; /* Logo formanın içinde küçük dursun */
-            background-color: #1a7a3a; /* Bursaspor Yeşili */
+            background-size: 25px;
+            background-color: #1a7a3a;
             border: 2px solid white;
-            border-radius: 5px; /* Forma gibi durması için */
+            border-radius: 5px;
             clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 100%, 0% 100%, 0% 20%);
         }
         .player-slot.missing .kit-icon { background-color: #dc2626; box-shadow: 0 0 15px #dc2626; }
         .player-name { font-size: 11px; font-weight: bold; background: rgba(0,0,0,0.7); padding: 2px 4px; border-radius: 3px; margin-top: 4px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .pos-label { font-size: 10px; color: #aaa; text-transform: uppercase; }
+        .pos-label { font-size: 10px; color: #fff; font-weight: 800; text-shadow: 1px 1px 2px black; }
     </style>
 </head>
 <body class="p-4">
@@ -52,14 +51,14 @@
             <div class="flex items-center gap-4">
                 <img src="https://upload.wikimedia.org/wikipedia/tr/0/00/Bursaspor_logo.png" alt="Bursaspor" class="w-16 h-16 object-contain">
                 <div>
-                    <h1 class="text-3xl font-bold text-white">BURSASPOR <span class="text-green-500 text-xl italic">FM26 Tracker</span></h1>
-                    <p id="squadInfo" class="text-gray-400 text-sm">Dosya yüklenmedi - Kadro Planlanıyor</p>
+                    <h1 class="text-3xl font-bold text-white">BURSASPOR <span class="text-green-500 text-xl italic">FM26 Kadro Planı</span></h1>
+                    <p id="squadInfo" class="text-gray-400 text-sm">Kadro dosyasını yükleyin ve eksikleri belirleyin.</p>
                 </div>
             </div>
             <div class="flex gap-2">
                 <input type="file" id="fmFile" class="hidden" onchange="handleFile(this)">
-                <button onclick="document.getElementById('fmFile').click()" class="bg-white text-black hover:bg-gray-200 px-5 py-2 rounded-md font-bold transition">
-                    DOSYA YÜKLE
+                <button onclick="document.getElementById('fmFile').click()" class="bg-green-600 text-white hover:bg-green-700 px-5 py-2 rounded-md font-bold transition">
+                    FM LİSTESİ YÜKLE (.CSV)
                 </button>
             </div>
         </header>
@@ -67,18 +66,19 @@
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div class="space-y-4">
                 <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                    <label class="block text-xs font-bold text-gray-400 mb-2 uppercase">Taktik Diziliş</label>
-                    <select id="formationSelect" onchange="changeFormation()" class="w-full bg-black border border-gray-600 rounded p-2 text-white">
-                        <option value="4231">4 - 2 - 3 - 1 Geniş</option>
-                        <option value="442">4 - 4 - 2 Klasik</option>
-                        <option value="433">4 - 3 - 3 Ofansif</option>
+                    <label class="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Taktik Diziliş</label>
+                    <select id="formationSelect" onchange="changeFormation()" class="w-full bg-black border border-gray-600 rounded p-2 text-white outline-none focus:border-green-500">
+                        <option value="4231">4 - 2 - 3 - 1 (Geniş)</option>
+                        <option value="442">4 - 4 - 2 (Klasik)</option>
+                        <option value="433">4 - 3 - 3 (Ofansif)</option>
+                        <option value="352">3 - 5 - 2 (Kanat Bekli)</option>
                     </select>
                 </div>
 
-                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 h-[400px] overflow-y-auto">
-                    <h3 class="font-bold text-red-500 mb-3 uppercase tracking-wider text-sm">Transfer Gerekenler</h3>
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                    <h3 class="font-bold text-red-500 mb-3 uppercase tracking-wider text-sm">🔴 Transfer Gerekenler</h3>
                     <ul id="needsList" class="space-y-2">
-                        <li class="text-gray-500 text-xs italic">Saha üzerinden eksik bölgeleri işaretleyin...</li>
+                        <li class="text-gray-500 text-xs italic text-center py-4">Sahada boşlukları tıklayarak işaretleyin</li>
                     </ul>
                 </div>
             </div>
@@ -93,10 +93,10 @@
                 </div>
             </div>
 
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 h-full overflow-hidden flex flex-col">
-                <h3 class="font-bold text-green-500 mb-3 uppercase tracking-wider text-sm">Yüklenen Kadro</h3>
-                <div id="squadList" class="overflow-y-auto flex-grow text-xs space-y-1">
-                    <p class="text-gray-500 italic">CSV yüklediğinizde oyuncular burada listelenir...</p>
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 flex flex-col h-[700px]">
+                <h3 class="font-bold text-green-500 mb-3 uppercase tracking-wider text-sm">📋 Oyuncu Havuzu</h3>
+                <div id="squadList" class="overflow-y-auto flex-grow text-xs space-y-1 pr-2">
+                    <p class="text-gray-500 italic">Henüz dosya yüklenmedi.</p>
                 </div>
             </div>
         </div>
@@ -105,28 +105,33 @@
     <script>
         const formations = {
             "4231": [
-                {p: "GK", b: "90%", l: "45%", n: "Kiralık Yok"},
-                {p: "DR", b: "70%", l: "85%", n: "Sağ Bek"}, {p: "DC", b: "75%", l: "58%", n: "Stoper Sol"}, {p: "DC", b: "75%", l: "32%", n: "Stoper Sağ"}, {p: "DL", b: "70%", l: "5%", n: "Sol Bek"},
-                {p: "DM", b: "55%", l: "55%", n: "Def. Orta Saha"}, {p: "DM", b: "55%", l: "35%", n: "Def. Orta Saha"},
-                {p: "AMR", b: "25%", l: "85%", n: "Sağ Kanat"}, {p: "AMC", b: "30%", l: "45%", n: "Oyun Kurucu"}, {p: "AML", b: "25%", l: "5%", n: "Sol Kanat"},
-                {p: "ST", b: "10%", l: "45%", n: "Forvet"}
+                {p: "KL", b: "90%", l: "45%"},
+                {p: "SĞB", b: "70%", l: "85%"}, {p: "STP", b: "75%", l: "58%"}, {p: "STP", b: "75%", l: "32%"}, {p: "SLB", b: "70%", l: "5%"},
+                {p: "MO", b: "55%", l: "55%"}, {p: "MO", b: "55%", l: "35%"},
+                {p: "SĞK", b: "25%", l: "85%"}, {p: "OOS", b: "30%", l: "45%"}, {p: "SLK", b: "25%", l: "5%"},
+                {p: "SNT", b: "10%", l: "45%"}
             ],
             "442": [
-                {p: "GK", b: "90%", l: "45%", n: "Kiralık Yok"},
-                {p: "DR", b: "70%", l: "85%", n: "Sağ Bek"}, {p: "DC", b: "75%", l: "58%", n: "Stoper"}, {p: "DC", b: "75%", l: "32%", n: "Stoper"}, {p: "DL", b: "70%", l: "5%", n: "Sol Bek"},
-                {p: "MR", b: "45%", l: "85%", n: "Sağ Kanat"}, {p: "MC", b: "50%", l: "58%", n: "Orta Saha"}, {p: "MC", b: "50%", l: "32%", n: "Orta Saha"}, {p: "ML", b: "45%", l: "5%", n: "Sol Kanat"},
-                {p: "ST", b: "15%", l: "58%", n: "Forvet"}, {p: "ST", b: "15%", l: "32%", n: "Forvet"}
+                {p: "KL", b: "90%", l: "45%"},
+                {p: "SĞB", b: "70%", l: "85%"}, {p: "STP", b: "75%", l: "58%"}, {p: "STP", b: "75%", l: "32%"}, {p: "SLB", b: "70%", l: "5%"},
+                {p: "SĞO", b: "45%", l: "85%"}, {p: "MO", b: "50%", l: "58%"}, {p: "MO", b: "50%", l: "32%"}, {p: "SLO", b: "45%", l: "5%"},
+                {p: "SNT", b: "15%", l: "58%"}, {p: "SNT", b: "15%", l: "32%"}
             ],
             "433": [
-                {p: "GK", b: "90%", l: "45%", n: "Kiralık Yok"},
-                {p: "DR", b: "70%", l: "85%", n: "Sağ Bek"}, {p: "DC", b: "75%", l: "58%", n: "Stoper"}, {p: "DC", b: "75%", l: "32%", n: "Stoper"}, {p: "DL", b: "70%", l: "5%", n: "Sol Bek"},
-                {p: "MC", b: "55%", l: "70%", n: "Orta Saha"}, {p: "MC", b: "55%", l: "45%", n: "Orta Saha"}, {p: "MC", b: "55%", l: "20%", n: "Orta Saha"},
-                {p: "AMR", b: "25%", l: "85%", n: "Sağ Kanat"}, {p: "ST", b: "10%", l: "45%", n: "Forvet"}, {p: "AML", b: "25%", l: "5%", n: "Sol Kanat"}
+                {p: "KL", b: "90%", l: "45%"},
+                {p: "SĞB", b: "70%", l: "85%"}, {p: "STP", b: "75%", l: "58%"}, {p: "STP", b: "75%", l: "32%"}, {p: "SLB", b: "70%", l: "5%"},
+                {p: "MO", b: "55%", l: "70%"}, {p: "MO", b: "55%", l: "45%"}, {p: "MO", b: "55%", l: "20%"},
+                {p: "SĞK", b: "25%", l: "85%"}, {p: "SNT", b: "10%", l: "45%"}, {p: "SLK", b: "25%", l: "5%"}
+            ],
+            "352": [
+                {p: "KL", b: "90%", l: "45%"},
+                {p: "STP", b: "78%", l: "65%"}, {p: "STP", b: "80%", l: "45%"}, {p: "STP", b: "78%", l: "25%"},
+                {p: "SĞKB", b: "50%", l: "88%"}, {p: "MO", b: "55%", l: "60%"}, {p: "MO", b: "55%", l: "45%"}, {p: "MO", b: "55%", l: "30%"}, {p: "SLKB", b: "50%", l: "2%"},
+                {p: "SNT", b: "15%", l: "58%"}, {p: "SNT", b: "15%", l: "32%"}
             ]
         };
 
         let selectedNeeds = new Set();
-        let squadData = [];
 
         function changeFormation() {
             const f = document.getElementById('formationSelect').value;
@@ -146,7 +151,7 @@
                 div.innerHTML = `
                     <div class="pos-label">${player.p}</div>
                     <div class="kit-icon"></div>
-                    <div class="player-name">${player.n}</div>
+                    <div class="player-name">Eksik Bölge</div>
                 `;
                 
                 div.onclick = () => toggleNeed(player.p, index, div);
@@ -159,9 +164,11 @@
             if (selectedNeeds.has(key)) {
                 selectedNeeds.delete(key);
                 el.classList.remove('missing');
+                el.querySelector('.player-name').innerText = "Eksik Bölge";
             } else {
                 selectedNeeds.add(key);
                 el.classList.add('missing');
+                el.querySelector('.player-name').innerText = "TRANSFER!";
             }
             updateNeedsList();
         }
@@ -169,12 +176,13 @@
         function updateNeedsList() {
             const list = document.getElementById('needsList');
             if (selectedNeeds.size === 0) {
-                list.innerHTML = '<li class="text-gray-500 text-xs italic">Eksik yok...</li>';
+                list.innerHTML = '<li class="text-gray-500 text-xs italic text-center py-4">Sahada boşlukları tıklayarak işaretleyin</li>';
                 return;
             }
             list.innerHTML = Array.from(selectedNeeds).map(item => {
-                return `<li class="bg-red-950 border border-red-800 p-2 rounded text-red-200 text-xs font-bold uppercase">
-                    ❌ ${item.split('-')[0]} TRANSFERİ LAZIM
+                const pName = item.split('-')[0];
+                return `<li class="bg-red-950 border border-red-800 p-3 rounded-lg text-red-200 text-xs font-bold flex items-center gap-2">
+                    <span class="bg-red-600 text-white px-1 rounded">ACİL</span> ${pName} Mevkisi Takviye Edilmeli
                 </li>`;
             }).join('');
         }
@@ -183,11 +191,15 @@
             const reader = new FileReader();
             reader.onload = function() {
                 const text = reader.result;
+                const rows = text.split('\n');
                 const squadListDiv = document.getElementById('squadList');
-                squadListDiv.innerHTML = text.split('\n').slice(1, 20).map(line => {
-                    return `<div class="p-1 border-b border-gray-700 text-gray-300">🏃 ${line.split(',')[0]}</div>`;
+                squadListDiv.innerHTML = rows.map((line, i) => {
+                    if(i === 0 || !line.trim()) return '';
+                    return `<div class="bg-gray-700/50 p-2 rounded border border-gray-600 hover:bg-green-900/30 transition cursor-default">
+                        🟢 ${line.split(',')[0]}
+                    </div>`;
                 }).join('');
-                document.getElementById('squadInfo').innerText = "Kadro Yüklendi (" + input.files[0].name + ")";
+                document.getElementById('squadInfo').innerText = "Toplam " + (rows.length - 1) + " oyuncu başarıyla yüklendi.";
             };
             reader.readAsText(input.files[0]);
         }
