@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FM26 Kadro Planlayıcı</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0b0e14; color: white; font-family: 'Inter', sans-serif; }
+        .pitch { 
+            background: #1a2c1a; 
+            border: 2px solid #2d5a2d; 
+            position: relative; 
+            height: 500px; 
+            border-radius: 15px;
+            background-image: linear-gradient(#2d5a2d 1px, transparent 1px);
+            background-size: 100% 50px;
+        }
+        .position-node { 
+            width: 60px; height: 60px; 
+            cursor: pointer; transition: 0.3s;
+        }
+        .missing { background-color: #ef4444 !important; border-color: #f87171; }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-6xl mx-auto">
+        <header class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
+            <h1 class="text-3xl font-bold text-green-500 underline">FM26 Kadro Planlayıcı</h1>
+            <input type="file" id="fileInput" class="hidden" accept=".csv,.html">
+            <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+                Kadro Dosyası Yükle (.csv)
+            </button>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="md:col-span-2">
+                <h2 class="text-xl mb-4">Saha Dizilimi (Tıkla ve İşaretle)</h2>
+                <div class="pitch p-4 grid grid-cols-4 gap-4 items-center justify-items-center">
+                    <div id="pitch-ui" class="contents"></div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                <h2 class="text-xl mb-4 border-b border-gray-600 pb-2">Transfer İhtiyaçları</h2>
+                <ul id="needs-list" class="space-y-2 mb-4">
+                    <li class="text-gray-400 italic">Henüz eksik işaretlenmedi...</li>
+                </ul>
+                <textarea class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm" rows="5" placeholder="Shortlist notlarını buraya yaz..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const positions = ["GK", "DL", "DC", "DC", "DR", "ML", "MC", "MC", "MR", "ST", "ST"];
+        const needs = new Set();
+
+        function renderPitch() {
+            const container = document.getElementById('pitch-ui');
+            container.innerHTML = positions.map(pos => `
+                <div onclick="toggleNeed('${pos}', this)" class="position-node bg-gray-700 border-2 border-gray-500 rounded-full flex items-center justify-center font-bold text-xs hover:scale-110">
+                    ${pos}
+                </div>
+            `).join('');
+        }
+
+        function toggleNeed(pos, el) {
+            el.classList.toggle('missing');
+            if(el.classList.contains('missing')) needs.add(pos);
+            else needs.delete(pos);
+            updateList();
+        }
+
+        function updateList() {
+            const list = document.getElementById('needs-list');
+            if(needs.size === 0) {
+                list.innerHTML = '<li class="text-gray-400 italic">Henüz eksik işaretlenmedi...</li>';
+                return;
+            }
+            list.innerHTML = Array.from(needs).map(n => `<li class="flex items-center text-red-400">● ${n} mevkisi için oyuncu lazım</li>`).join('');
+        }
+
+        renderPitch();
+    </script>
+</body>
+</html>
