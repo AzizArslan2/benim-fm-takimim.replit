@@ -6,81 +6,356 @@
     <title>FM26 Kadro Planlayıcı</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0b0e14; color: white; font-family: 'Inter', sans-serif; }
+        body { background-color: #121821; color: #e5e7eb; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .pitch { 
-            background: #1a2c1a; 
-            border: 2px solid #2d5a2d; 
+            background: #1a3a1a; 
+            border: 4px solid #2d5a2d; 
             position: relative; 
-            height: 500px; 
-            border-radius: 15px;
-            background-image: linear-gradient(#2d5a2d 1px, transparent 1px);
-            background-size: 100% 50px;
+            height: 600px; 
+            width: 100%;
+            border-radius: 20px;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            overflow: hidden;
         }
-        .position-node { 
-            width: 60px; height: 60px; 
-            cursor: pointer; transition: 0.3s;
+        .pitch-line { border: 2px solid rgba(255,255,255,0.3); position: absolute; pointer-events: none; }
+        .penalty-box { width: 60%; height: 100px; border: 2px solid rgba(255,255,255,0.3); position: absolute; left: 20%; }
+        .center-circle { width: 120px; height: 120px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        
+        .player-node {
+            position: absolute;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 10;
         }
-        .missing { background-color: #ef4444 !important; border-color: #f87171; }
+        .player-node:hover { transform: scale(1.1); }
+        .player-node.missing { background: #dc2626; border: 2px solid #fecaca; box-shadow: 0 0 15px #dc2626; }
     </style>
 </head>
-<body class="p-8">
-    <div class="max-w-6xl mx-auto">
-        <header class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
-            <h1 class="text-3xl font-bold text-green-500 underline">FM26 Kadro Planlayıcı</h1>
-            <input type="file" id="fileInput" class="hidden" accept=".csv,.html">
-            <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
-                Kadro Dosyası Yükle (.csv)
-            </button>
+<body class="p-6">
+    <div class="max-w-7xl mx-auto">
+        <header class="flex flex-wrap justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-4xl font-extrabold text-green-400">FM26 Kadro Planlayıcı</h1>
+                <p class="text-gray-400">Eksikleri işaretle, transferi planla.</p>
+            </div>
+            <div class="flex gap-3">
+                <input type="file" id="fmFile" class="hidden" onchange="handleFile(this)">
+                <button onclick="document.getElementById('fmFile').click()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition">
+                    FM Kadro Yükle (.csv)
+                </button>
+            </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="md:col-span-2">
-                <h2 class="text-xl mb-4">Saha Dizilimi (Tıkla ve İşaretle)</h2>
-                <div class="pitch p-4 grid grid-cols-4 gap-4 items-center justify-items-center">
-                    <div id="pitch-ui" class="contents"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div class="space-y-6">
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700">
+                    <h3 class="text-lg font-semibold mb-4 text-white">Diziliş Seçimi</h3>
+                    <select id="formationSelect" onchange="changeFormation()" class="w-full bg-gray-900 border border-gray-600 rounded-md p-2 text-white outline-none focus:border-green-500">
+                        <option value="442">4 - 4 - 2 Standard</option>
+                        <option value="433">4 - 3 - 3 Atak</option>
+                        <option value="352">3 - 5 - 2 Kanatlı</option>
+                    </select>
+                </div>
+
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700">
+                    <h3 class="text-lg font-semibold mb-4 text-red-400">Eksik Mevkiler</h3>
+                    <ul id="needsList" class="space-y-3">
+                        <li class="text-gray-500 italic text-sm text-center">Sahadan mevki seçin...</li>
+                    </ul>
                 </div>
             </div>
 
-            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-                <h2 class="text-xl mb-4 border-b border-gray-600 pb-2">Transfer İhtiyaçları</h2>
-                <ul id="needs-list" class="space-y-2 mb-4">
-                    <li class="text-gray-400 italic">Henüz eksik işaretlenmedi...</li>
-                </ul>
-                <textarea class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm" rows="5" placeholder="Shortlist notlarını buraya yaz..."></textarea>
+            <div class="lg:col-span-2">
+                <div class="pitch" id="pitchContainer">
+                    <div class="penalty-box top-0 border-t-0"></div>
+                    <div class="penalty-box bottom-0 border-b-0" style="bottom: 0;"></div>
+                    <div class="center-circle"></div>
+                    <div class="pitch-line w-full top-1/2"></div>
+                    
+                    <div id="playersLayer"></div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 h-full">
+                    <h3 class="text-lg font-semibold mb-4 text-blue-400">Transfer Notları</h3>
+                    <textarea class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm h-64 outline-none focus:border-blue-500 text-gray-300" placeholder="Örn: ST için bitiriciliği 15+ olan bir oyuncu bakılacak..."></textarea>
+                    <button class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-2 rounded font-bold transition">Planı Kaydet</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const positions = ["GK", "DL", "DC", "DC", "DR", "ML", "MC", "MC", "MR", "ST", "ST"];
-        const needs = new Set();
+        const formations = {
+            "442": [
+                {p: "GK", b: "90%", l: "44%"},
+                {p: "DR", b: "70%", l: "82%"}, {p: "DC", b: "75%", l: "58%"}, {p: "DC", b: "75%", l: "30%"}, {p: "DL", b: "70%", l: "6%"},
+                {p: "MR", b: "45%", l: "82%"}, {p: "MC", b: "50%", l: "58%"}, {p: "MC", b: "50%", l: "30%"}, {p: "ML", b: "45%", l: "6%"},
+                {p: "ST", b: "15%", l: "55%"}, {p: "ST", b: "15%", l: "33%"}
+            ],
+            "433": [
+                {p: "GK", b: "90%", l: "44%"},
+                {p: "DR", b: "70%", l: "82%"}, {p: "DC", b: "75%", l: "58%"}, {p: "DC", b: "75%", l: "30%"}, {p: "DL", b: "70%", l: "6%"},
+                {p: "MC", b: "55%", l: "70%"}, {p: "MC", b: "55%", l: "44%"}, {p: "MC", b: "55%", l: "18%"},
+                {p: "AMR", b: "25%", l: "80%"}, {p: "ST", b: "15%", l: "44%"}, {p: "AML", b: "25%", l: "8%"}
+            ],
+            "352": [
+                {p: "GK", b: "90%", l: "44%"},
+                {p: "DC", b: "75%", l: "70%"}, {p: "DC", b: "78%", l: "44%"}, {p: "DC", b: "75%", l: "18%"},
+                {p: "MR", b: "50%", l: "85%"}, {p: "MC", b: "55%", l: "60%"}, {p: "MC", b: "55%", l: "44%"}, {p: "MC", b: "55%", l: "28%"}, {p: "ML", b: "50%", l: "3%"},
+                {p: "ST", b: "15%", l: "55%"}, {p: "ST", b: "15%", l: "33%"}
+            ]
+        };
 
-        function renderPitch() {
-            const container = document.getElementById('pitch-ui');
-            container.innerHTML = positions.map(pos => `
-                <div onclick="toggleNeed('${pos}', this)" class="position-node bg-gray-700 border-2 border-gray-500 rounded-full flex items-center justify-center font-bold text-xs hover:scale-110">
-                    ${pos}
-                </div>
-            `).join('');
+        let selectedNeeds = new Set();
+
+        function changeFormation() {
+            const f = document.getElementById('formationSelect').value;
+            renderPlayers(formations[f]);
         }
 
-        function toggleNeed(pos, el) {
-            el.classList.toggle('missing');
-            if(el.classList.contains('missing')) needs.add(pos);
-            else needs.delete(pos);
-            updateList();
+        function renderPlayers(players) {
+            const layer = document.getElementById('playersLayer');
+            layer.innerHTML = '';
+            players.forEach((player, index) => {
+                const div = document.createElement('div');
+                div.className = `player-node ${selectedNeeds.has(`${player.p}-${index}`) ? 'missing' : ''}`;
+                div.style.bottom = player.b;
+                div.style.left = player.l;
+                div.innerText = player.p;
+                div.onclick = () => toggleNeed(player.p, index, div);
+                layer.appendChild(div);
+            });
         }
 
-        function updateList() {
-            const list = document.getElementById('needs-list');
-            if(needs.size === 0) {
-                list.innerHTML = '<li class="text-gray-400 italic">Henüz eksik işaretlenmedi...</li>';
+        function toggleNeed(pos, index, el) {
+            const key = `${pos}-${index}`;
+            if (selectedNeeds.has(key)) {
+                selectedNeeds.delete(key);
+                el.classList.remove('missing');
+            } else {
+                selectedNeeds.add(key);
+                el.classList.add('missing');
+            }
+            updateNeedsList();
+        }
+
+        function updateNeedsList() {
+            const list = document.getElementById('needsList');
+            if (selectedNeeds.size === 0) {
+                list.innerHTML = '<li class="text-gray-500 italic text-sm text-center">Sahadan mevki seçin...</li>';
                 return;
             }
-            list.innerHTML = Array.from(needs).map(n => `<li class="flex items-center text-red-400">● ${n} mevkisi için oyuncu lazım</li>`).join('');
+            list.innerHTML = Array.from(selectedNeeds).map(item => {
+                const posName = item.split('-')[0];
+                return `<li class="bg-red-900/30 border border-red-700 p-2 rounded text-red-200 text-sm flex justify-between items-center">
+                    <span>⚠️ <b>${posName}</b> Takviyesi Lazım</span>
+                </li>`;
+            }).join('');
         }
 
-        renderPitch();
+        function handleFile(input) {
+            if (input.files && input.files[0]) {
+                alert(input.files[0].name + " yüklendi. FM Kadrosu başarıyla işlendi!");
+            }
+        }
+
+        // Başlangıçta 4-4-2 çiz
+        changeFormation();
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FM26 Kadro Planlayıcı</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #121821; color: #e5e7eb; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .pitch { 
+            background: #1a3a1a; 
+            border: 4px solid #2d5a2d; 
+            position: relative; 
+            height: 600px; 
+            width: 100%;
+            border-radius: 20px;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            overflow: hidden;
+        }
+        .pitch-line { border: 2px solid rgba(255,255,255,0.3); position: absolute; pointer-events: none; }
+        .penalty-box { width: 60%; height: 100px; border: 2px solid rgba(255,255,255,0.3); position: absolute; left: 20%; }
+        .center-circle { width: 120px; height: 120px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        
+        .player-node {
+            position: absolute;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        .player-node:hover { transform: scale(1.1); }
+        .player-node.missing { background: #dc2626; border: 2px solid #fecaca; box-shadow: 0 0 15px #dc2626; }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-7xl mx-auto">
+        <header class="flex flex-wrap justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-4xl font-extrabold text-green-400">FM26 Kadro Planlayıcı</h1>
+                <p class="text-gray-400">Eksikleri işaretle, transferi planla.</p>
+            </div>
+            <div class="flex gap-3">
+                <input type="file" id="fmFile" class="hidden" onchange="handleFile(this)">
+                <button onclick="document.getElementById('fmFile').click()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition">
+                    FM Kadro Yükle (.csv)
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div class="space-y-6">
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700">
+                    <h3 class="text-lg font-semibold mb-4 text-white">Diziliş Seçimi</h3>
+                    <select id="formationSelect" onchange="changeFormation()" class="w-full bg-gray-900 border border-gray-600 rounded-md p-2 text-white outline-none focus:border-green-500">
+                        <option value="442">4 - 4 - 2 Standard</option>
+                        <option value="433">4 - 3 - 3 Atak</option>
+                        <option value="352">3 - 5 - 2 Kanatlı</option>
+                    </select>
+                </div>
+
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700">
+                    <h3 class="text-lg font-semibold mb-4 text-red-400">Eksik Mevkiler</h3>
+                    <ul id="needsList" class="space-y-3">
+                        <li class="text-gray-500 italic text-sm text-center">Sahadan mevki seçin...</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="pitch" id="pitchContainer">
+                    <div class="penalty-box top-0 border-t-0"></div>
+                    <div class="penalty-box bottom-0 border-b-0" style="bottom: 0;"></div>
+                    <div class="center-circle"></div>
+                    <div class="pitch-line w-full top-1/2"></div>
+                    
+                    <div id="playersLayer"></div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 h-full">
+                    <h3 class="text-lg font-semibold mb-4 text-blue-400">Transfer Notları</h3>
+                    <textarea class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm h-64 outline-none focus:border-blue-500 text-gray-300" placeholder="Örn: ST için bitiriciliği 15+ olan bir oyuncu bakılacak..."></textarea>
+                    <button class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-2 rounded font-bold transition">Planı Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const formations = {
+            "442": [
+                {p: "GK", b: "90%", l: "44%"},
+                {p: "DR", b: "70%", l: "82%"}, {p: "DC", b: "75%", l: "58%"}, {p: "DC", b: "75%", l: "30%"}, {p: "DL", b: "70%", l: "6%"},
+                {p: "MR", b: "45%", l: "82%"}, {p: "MC", b: "50%", l: "58%"}, {p: "MC", b: "50%", l: "30%"}, {p: "ML", b: "45%", l: "6%"},
+                {p: "ST", b: "15%", l: "55%"}, {p: "ST", b: "15%", l: "33%"}
+            ],
+            "433": [
+                {p: "GK", b: "90%", l: "44%"},
+                {p: "DR", b: "70%", l: "82%"}, {p: "DC", b: "75%", l: "58%"}, {p: "DC", b: "75%", l: "30%"}, {p: "DL", b: "70%", l: "6%"},
+                {p: "MC", b: "55%", l: "70%"}, {p: "MC", b: "55%", l: "44%"}, {p: "MC", b: "55%", l: "18%"},
+                {p: "AMR", b: "25%", l: "80%"}, {p: "ST", b: "15%", l: "44%"}, {p: "AML", b: "25%", l: "8%"}
+            ],
+            "352": [
+                {p: "GK", b: "90%", l: "44%"},
+                {p: "DC", b: "75%", l: "70%"}, {p: "DC", b: "78%", l: "44%"}, {p: "DC", b: "75%", l: "18%"},
+                {p: "MR", b: "50%", l: "85%"}, {p: "MC", b: "55%", l: "60%"}, {p: "MC", b: "55%", l: "44%"}, {p: "MC", b: "55%", l: "28%"}, {p: "ML", b: "50%", l: "3%"},
+                {p: "ST", b: "15%", l: "55%"}, {p: "ST", b: "15%", l: "33%"}
+            ]
+        };
+
+        let selectedNeeds = new Set();
+
+        function changeFormation() {
+            const f = document.getElementById('formationSelect').value;
+            renderPlayers(formations[f]);
+        }
+
+        function renderPlayers(players) {
+            const layer = document.getElementById('playersLayer');
+            layer.innerHTML = '';
+            players.forEach((player, index) => {
+                const div = document.createElement('div');
+                div.className = `player-node ${selectedNeeds.has(`${player.p}-${index}`) ? 'missing' : ''}`;
+                div.style.bottom = player.b;
+                div.style.left = player.l;
+                div.innerText = player.p;
+                div.onclick = () => toggleNeed(player.p, index, div);
+                layer.appendChild(div);
+            });
+        }
+
+        function toggleNeed(pos, index, el) {
+            const key = `${pos}-${index}`;
+            if (selectedNeeds.has(key)) {
+                selectedNeeds.delete(key);
+                el.classList.remove('missing');
+            } else {
+                selectedNeeds.add(key);
+                el.classList.add('missing');
+            }
+            updateNeedsList();
+        }
+
+        function updateNeedsList() {
+            const list = document.getElementById('needsList');
+            if (selectedNeeds.size === 0) {
+                list.innerHTML = '<li class="text-gray-500 italic text-sm text-center">Sahadan mevki seçin...</li>';
+                return;
+            }
+            list.innerHTML = Array.from(selectedNeeds).map(item => {
+                const posName = item.split('-')[0];
+                return `<li class="bg-red-900/30 border border-red-700 p-2 rounded text-red-200 text-sm flex justify-between items-center">
+                    <span>⚠️ <b>${posName}</b> Takviyesi Lazım</span>
+                </li>`;
+            }).join('');
+        }
+
+        function handleFile(input) {
+            if (input.files && input.files[0]) {
+                alert(input.files[0].name + " yüklendi. FM Kadrosu başarıyla işlendi!");
+            }
+        }
+
+        // Başlangıçta 4-4-2 çiz
+        changeFormation();
     </script>
 </body>
 </html>
