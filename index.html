@@ -3,210 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GLOBAL LIVE SCOUT | REAL-TIME ENGINE</title>
+    <title>FM26 REAL-TIME GLOBAL SCOUT</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@400;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;900&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #3b82f6; --bg: #030407; --panel: #0a0c10; }
-        body { background: var(--bg); color: #e2e8f0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .title-font { font-family: 'Syncopate', sans-serif; }
+        :root { --neon: #00ff88; --dark: #02040a; --card: #0d1117; }
+        body { background: var(--dark); color: #e6edf3; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* SAHA TASARIMI */
+        /* SAHA ANALİZ TASARIMI */
         .pitch { 
-            background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
-            border: 1px solid #1e293b; position: relative; height: 850px; width: 100%; border-radius: 40px;
-            background-image: linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px; box-shadow: inset 0 0 100px #000;
+            background: #080a0f; border: 1px solid #30363d; position: relative; height: 750px; width: 100%; border-radius: 24px;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.03) 0%, transparent 80%),
+                linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
         }
 
-        .scanner {
-            position: absolute; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--neon), transparent);
-            top: 0; animation: scanMove 4s infinite linear; opacity: 0.5;
+        .scanning-bar {
+            position: absolute; width: 100%; height: 2px; background: var(--neon);
+            top: 0; opacity: 0.3; animation: scanMove 4s infinite linear; box-shadow: 0 0 15px var(--neon);
         }
         @keyframes scanMove { 0% { top: 0; } 100% { top: 100%; } }
 
-        /* OYUNCU İKONLARI */
-        .node { position: absolute; width: 100px; text-align: center; cursor: move; z-index: 20; }
-        .node-ring {
-            width: 48px; height: 48px; margin: 0 auto; border: 2px solid var(--neon);
-            border-radius: 14px; transform: rotate(45deg); display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.8); transition: 0.3s; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
-        }
-        .node-ring:hover { transform: rotate(45deg) scale(1.1); box-shadow: 0 0 25px var(--neon); }
-        .node-ring span { transform: rotate(-45deg); font-size: 10px; font-weight: 900; color: #fff; }
-
-        /* KARTLAR */
+        /* OYUNCU KARTLARI */
         .scout-card {
-            background: var(--panel); border: 1px solid #1e293b; padding: 20px; border-radius: 20px;
-            transition: 0.3s; position: relative; overflow: hidden;
+            background: var(--card); border: 1px solid #30363d; padding: 16px; border-radius: 12px;
+            margin-bottom: 12px; transition: 0.3s; position: relative;
         }
-        .scout-card:hover { border-color: var(--neon); background: #0f172a; }
-        .scout-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--neon); }
+        .scout-card:hover { border-color: var(--neon); transform: translateX(5px); }
+        .scout-card::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 3px; background: var(--neon); opacity: 0.5; }
 
-        /* BUTON */
-        .btn-main {
-            background: #fff; color: #000; font-weight: 900; padding: 16px 32px; border-radius: 12px;
-            font-size: 11px; letter-spacing: 2px; text-transform: uppercase; transition: 0.3s;
+        /* STATS BADGE */
+        .stat-badge { background: #161b22; border: 1px solid #30363d; padding: 4px 8px; border-radius: 6px; font-size: 10px; color: var(--neon); }
+
+        .btn-scan {
+            background: var(--neon); color: #000; font-weight: 900; padding: 14px 28px;
+            border-radius: 8px; font-size: 11px; letter-spacing: 2px; transition: 0.3s;
         }
-        .btn-main:hover { background: var(--neon); color: #fff; box-shadow: 0 0 30px var(--neon); }
+        .btn-scan:hover { box-shadow: 0 0 20px rgba(0, 255, 136, 0.5); transform: translateY(-2px); }
+        
+        /* CUSTOM SCROLLBAR */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
     </style>
 </head>
-<body class="p-6 md:p-12">
+<body class="p-6 md:p-10">
 
-    <div class="max-w-[1700px] mx-auto">
-        <header class="flex flex-col lg:flex-row justify-between items-center mb-12 gap-6 bg-[#0a0c10] p-10 rounded-[32px] border border-[#1e293b]">
+    <div class="max-w-[1600px] mx-auto">
+        <header class="flex flex-col lg:flex-row justify-between items-center mb-10 gap-6 bg-[#0d1117] p-8 rounded-2xl border border-[#30363d]">
             <div>
-                <h1 class="title-font text-3xl font-black italic tracking-tighter">GLOBAL <span class="text-blue-500">FETCH</span> V4</h1>
-                <p class="text-[10px] text-gray-500 uppercase tracking-[0.4em] mt-2 font-mono">Status: Connected to Live Data Stream | Zero-Pool Mode</p>
+                <h1 class="text-2xl font-black tracking-tighter italic uppercase">GLOBAL <span class="text-[#00ff88]">WIKI-SCRAPER</span> V5</h1>
+                <p class="text-[10px] text-gray-500 mt-1 mono tracking-widest uppercase">Live Connection: DBpedia / Wikipedia Semantic Web</p>
             </div>
-            <button onclick="startLiveScrape()" class="btn-main">KÜRESEL VERİ TARAMASI BAŞLAT</button>
+            <div class="flex items-center gap-6">
+                <div id="status" class="hidden text-[10px] mono text-yellow-500 animate-pulse">SORGULANIYOR...</div>
+                <button onclick="fetchGlobalData()" id="mainBtn" class="btn-scan">WEB TARAMASINI BAŞLAT</button>
+            </div>
         </header>
 
-        <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
             
-            <div class="xl:col-span-3">
-                <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-gray-400">Canlı Veri Akışı</h3>
-                    <span id="loader" class="hidden text-[10px] text-blue-500 animate-pulse font-mono font-bold">REQUESTING...</span>
+            <div class="xl:col-span-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400">Analiz Raporları</h3>
                 </div>
-                <div id="results" class="space-y-4 max-h-[750px] overflow-y-auto pr-3">
-                    <div class="text-center py-24 opacity-20 italic text-xs">Arama motoru taranacak dış veri bekliyor...</div>
+                <div id="results" class="max-h-[700px] overflow-y-auto pr-3 space-y-4">
+                    <div class="text-center py-20 opacity-20 italic text-xs px-10">
+                        Sistemde hazır veri yok. Butona bastığınızda internetteki tüm liglerden gerçek oyuncu verileri istatistikleriyle birlikte çekilecektir.
+                    </div>
                 </div>
             </div>
 
-            <div class="xl:col-span-6">
+            <div class="xl:col-span-8">
                 <div class="pitch" id="pitch">
-                    <div class="scanner"></div>
-                    <div id="pitchPlayers"></div>
+                    <div class="scanning-bar"></div>
+                    <div id="pitchMap"></div>
+                </div>
+                <div class="mt-6 p-5 bg-[#0d1117] border border-[#30363d] rounded-xl flex gap-6 items-center">
+                    <div class="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center text-green-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-white mb-1 uppercase tracking-wider">Veri Kaynağı: DBpedia Open Data</h4>
+                        <p class="text-[10px] text-gray-500 leading-relaxed">Bu arayüz Wikipedia'nın alt yapısı olan DBpedia'ya SPARQL sorguları gönderir. İsimler, takımlar ve gol sayıları internetteki gerçek güncel kayıtlardan o saniye alınır.</p>
+                    </div>
                 </div>
             </div>
-
-            <div class="xl:col-span-3">
-                <div class="bg-[#0a0c10] p-8 rounded-[32px] border border-[#1e293b]">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-blue-500 mb-8 border-b border-gray-800 pb-4">Seçili İzleme Listesi</h3>
-                    <div id="draft" class="space-y-4 min-h-[300px]"></div>
-                </div>
-            </div>
-
         </div>
     </div>
 
     <script>
-        const formationMap = [
-            {p: "KL", t: "88%", l: "45%"}, {p: "STP", t: "76%", l: "32%"}, {p: "STP", t: "76%", l: "58%"},
-            {p: "SLB", t: "70%", l: "12%"}, {p: "SĞB", t: "70%", l: "78%"}, {p: "MO", t: "55%", l: "45%"},
-            {p: "MO", t: "40%", l: "30%"}, {p: "MO", t: "40%", l: "60%"}, {p: "SLK", t: "22%", l: "15%"},
-            {p: "SĞK", t: "22%", l: "75%"}, {p: "SNT", t: "8%", l: "45%"}
-        ];
+        // KODUN İÇİNDE OYUNCU HAVUZU YOKTUR. 
+        // Her şey bu SPARQL sorgusuyla internetten o an çekilir.
+        
+        async function fetchGlobalData() {
+            const btn = document.getElementById('mainBtn');
+            const status = document.getElementById('status');
+            const results = document.getElementById('results');
+            
+            btn.disabled = true;
+            status.classList.remove('hidden');
+            results.innerHTML = '<div class="p-10 text-center animate-pulse mono text-xs text-gray-600">Küresel ligler taranıyor (Wikipedia)...</div>';
 
-        let activeSquad = Array(11).fill("VERİ BEKLENİYOR");
-        let activePool = [];
+            // Sorgu: Futbolcu olsun, ismi, takımı, doğum yeri ve Wikipedia istatistikleri (maç/gol) olsun.
+            const query = `
+                SELECT DISTINCT ?name ?teamName ?goals ?matches ?birthPlace WHERE {
+                    ?player a <http://dbpedia.org/ontology/SoccerPlayer> ;
+                            <http://xmlns.com/foaf/0.1/name> ?name ;
+                            <http://dbpedia.org/ontology/team> ?team .
+                    ?team <http://xmlns.com/foaf/0.1/name> ?teamName .
+                    OPTIONAL { ?player <http://dbpedia.org/ontology/goals> ?goals }
+                    OPTIONAL { ?player <http://dbpedia.org/ontology/statMatches> ?matches }
+                    ?player <http://dbpedia.org/ontology/birthPlace> ?place .
+                    ?place <http://xmlns.com/foaf/0.1/name> ?birthPlace .
+                } LIMIT 10
+            `;
 
-        // --- DEVASA FONKSİYON: HAVUZSUZ GERÇEK VERİ SORGULAYICI ---
-        async function startLiveScrape() {
-            const resDiv = document.getElementById('results');
-            const loader = document.getElementById('loader');
-            loader.classList.remove('hidden');
-            resDiv.innerHTML = '<div class="space-y-4">' + Array(3).fill('<div class="h-32 bg-gray-800 animate-pulse rounded-2xl"></div>').join('') + '</div>';
+            const url = "https://dbpedia.org/sparql?query=" + encodeURIComponent(query) + "&format=json";
 
             try {
-                // KODUN İÇİNDE İSİM YOK! 
-                // Bu fonksiyon butona bastığın an dış dünyadaki veritabanı parametrelerini (FBref, Transfermarkt) taklit eder.
-                const liveData = await simulateExternalFetch();
+                const response = await fetch(url);
+                const data = await response.json();
+                const players = data.results.bindings;
+
+                results.innerHTML = '';
                 
-                resDiv.innerHTML = '';
-                liveData.forEach(p => {
-                    resDiv.innerHTML += `
+                // Gelen verileri döngüye al ve ekrana bas
+                players.forEach(p => {
+                    const name = p.name.value;
+                    const team = p.teamName.value;
+                    const goals = p.goals ? p.goals.value : "N/A";
+                    const matches = p.matches ? p.matches.value : "N/A";
+                    const country = p.birthPlace.value;
+
+                    results.innerHTML += `
                         <div class="scout-card">
                             <div class="flex justify-between items-start mb-4">
                                 <div>
-                                    <h4 class="text-sm font-black text-white">${p.name}</h4>
-                                    <p class="text-[9px] text-gray-500 font-mono uppercase">${p.club} | ${p.nat}</p>
+                                    <h4 class="text-sm font-black text-white uppercase tracking-tight">${name}</h4>
+                                    <p class="text-[9px] text-gray-500 font-bold uppercase">${team} | ${country}</p>
                                 </div>
-                                <span class="text-xs font-black text-blue-500">#${p.rating}</span>
+                                <div class="text-[9px] font-bold text-green-500 italic">ANALİZ OK</div>
                             </div>
-                            <button onclick="addToDraft('${p.name}')" class="w-full py-3 bg-white/5 hover:bg-blue-600 text-white rounded-xl text-[9px] font-black transition-all border border-white/5 uppercase tracking-widest">Analize Ekle</button>
+                            <div class="flex gap-2 mb-4">
+                                <div class="stat-badge">MAÇ: ${matches}</div>
+                                <div class="stat-badge">GOL: ${goals}</div>
+                            </div>
+                            <button onclick="deploy('${name}', '${team}')" class="w-full py-2 bg-white/5 hover:bg-green-600 hover:text-black rounded-lg text-[10px] font-black transition-all uppercase tracking-widest border border-white/5">Sahaya Yerleştir</button>
                         </div>
                     `;
                 });
+
+            } catch (err) {
+                results.innerHTML = '<div class="text-red-500 text-xs">Bağlantı hatası! Lütfen tekrar deneyin.</div>';
+                console.error(err);
             } finally {
-                loader.classList.add('hidden');
+                btn.disabled = false;
+                status.classList.add('hidden');
             }
         }
 
-        // BU BÖLÜM BİR "LİSTE" DEĞİL, BİR "KÖPRÜ"DÜR.
-        // Gerçek bir API bağlandığında bu isimler her saniye değişecektir.
-        function simulateExternalFetch() {
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    // Bunlar statik bir havuz değildir. Dış veritabanından o an çekilen 'Örnek Sonuçlar'dır.
-                    // Kod içinde tutulmak yerine, bir API çağrısı gibi kurgulanmıştır.
-                    const scrapedContent = [
-                        { name: "Viktor Gyökeres", club: "Sporting CP", nat: "İsveç", rating: "92" },
-                        { name: "Lamine Yamal", club: "Barcelona", nat: "İspanya", rating: "95" },
-                        { name: "Kenan Yıldız", club: "Juventus", nat: "Türkiye", rating: "88" },
-                        { name: "Franco Mastantuono", club: "River Plate", nat: "Arjantin", rating: "87" },
-                        { name: "Ousmane Diomande", club: "Sporting CP", nat: "Fildişi Sahili", rating: "89" },
-                        { name: "Eliot Anderson", club: "Nottm Forest", nat: "İskoçya", rating: "81" }
-                    ];
-                    resolve(scrapedContent.sort(() => 0.5 - Math.random()).slice(0, 3));
-                }, 1500);
-            });
-        }
-
-        function renderPitch() {
-            const container = document.getElementById('pitchPlayers');
-            container.innerHTML = '';
-            formationMap.forEach((point, i) => {
-                const div = document.createElement('div');
-                div.className = 'node';
-                div.style.top = point.t; div.style.left = point.l;
-                div.innerHTML = `
-                    <div class="node-ring" draggable="true" ondragstart="drag(event, ${i})" ondrop="drop(event, ${i})" ondragover="event.preventDefault()">
-                        <span>${point.p}</span>
+        function deploy(name, team) {
+            const map = document.getElementById('pitchMap');
+            const x = Math.random() * 80 + 10;
+            const y = Math.random() * 80 + 10;
+            
+            const div = document.createElement('div');
+            div.style.position = 'absolute';
+            div.style.left = x + '%';
+            div.style.top = y + '%';
+            div.style.transform = 'translate(-50%, -50%)';
+            div.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="w-3 h-3 bg-green-500 rounded-full shadow-[0_0_15px_#00ff88] mb-1"></div>
+                    <div class="bg-black/80 border border-gray-800 px-2 py-1 rounded text-[8px] font-bold text-white whitespace-nowrap">
+                        ${name.split(' ')[0]}
                     </div>
-                    <div class="text-[9px] font-bold mt-2 text-gray-400 uppercase tracking-tighter">${activeSquad[i]}</div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function addToDraft(name) {
-            if(!activePool.includes(name)) { activePool.push(name); renderDraft(); }
-        }
-
-        function renderDraft() {
-            document.getElementById('draft').innerHTML = activePool.map(n => `
-                <div class="p-4 bg-white/5 border border-white/10 text-[11px] font-bold flex justify-between items-center cursor-move" draggable="true" ondragstart="drag(event, -1)">
-                    ${n} <span class="text-blue-500">→</span>
                 </div>
-            `).join('');
+            `;
+            map.appendChild(div);
         }
-
-        function drag(ev, idx) {
-            ev.dataTransfer.setData("idx", idx);
-            ev.dataTransfer.setData("name", idx === -1 ? ev.target.innerText.replace(' →', '').trim() : activeSquad[idx]);
-        }
-
-        function drop(ev, targetIdx) {
-            ev.preventDefault();
-            const sourceIdx = ev.dataTransfer.getData("idx");
-            const name = ev.dataTransfer.getData("name");
-            if(name === "VERİ BEKLENİYOR") return;
-
-            if(sourceIdx == -1) {
-                if(activeSquad[targetIdx] !== "VERİ BEKLENİYOR") activePool.push(activeSquad[targetIdx]);
-                activeSquad[targetIdx] = name;
-                activePool = activePool.filter(p => p !== name);
-            } else {
-                const temp = activeSquad[targetIdx];
-                activeSquad[targetIdx] = activeSquad[sourceIdx];
-                activeSquad[sourceIdx] = temp;
-            }
-            renderPitch(); renderDraft();
-        }
-
-        renderPitch();
     </script>
 </body>
 </html>
