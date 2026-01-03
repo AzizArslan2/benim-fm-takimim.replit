@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRO-SCOUT V11 | Ultimate Analysis</title>
+    <title>PRO-SCOUT V12 | Kesintisiz Taktik Board</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --neon: #00ff88; --bg: #030508; }
         body { background: var(--bg); color: #e2e8f0; font-family: 'Inter', sans-serif; overflow: hidden; }
         
-        /* SAHA */
+        /* SAHA TASARIMI */
         .pitch { 
             background: #080a0f; border: 2px solid #1f2937; position: relative; height: 680px; width: 100%; border-radius: 20px;
             background-image: radial-gradient(circle, #1a1d23 1.5px, transparent 1.5px); background-size: 40px 40px;
@@ -19,22 +19,22 @@
         .pos-slot {
             position: absolute; width: 68px; height: 68px; border: 1px solid #1f2937; border-radius: 50%;
             transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.7); cursor: pointer; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(0,0,0,0.85); cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 10;
         }
-        .pos-slot:hover { border-color: var(--neon); transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 0 20px rgba(0,255,136,0.1); }
+        .pos-slot:hover { border-color: var(--neon); transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 0 15px rgba(0,255,136,0.1); }
         .slot-active { border-color: var(--neon); background: rgba(0, 255, 136, 0.05); }
 
         /* OYUNCU KARTLARI */
         .scout-card {
             background: #0d1117; border: 1px solid #1f2937; padding: 12px; border-radius: 10px; margin-bottom: 8px;
-            cursor: pointer; border-left: 4px solid transparent; transition: 0.2s; position: relative;
+            cursor: pointer; border-left: 4px solid transparent; transition: 0.2s;
         }
-        .scout-card:hover { background: #161b22; border-left-color: #555; }
+        .scout-card:hover { background: #161b22; }
         .selected-player { border-left-color: var(--neon) !important; background: #1a2333 !important; }
 
-        /* FORM/SAKATLIK İKONLARI */
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        /* DURUM İKONLARI */
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
         .status-fit { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
         .status-tired { background: #ffcc00; box-shadow: 0 0 8px #ffcc00; }
         .status-injured { background: #ff4444; box-shadow: 0 0 8px #ff4444; }
@@ -49,30 +49,25 @@
     <div class="max-w-[1600px] mx-auto">
         <header class="flex justify-between items-center mb-6 bg-[#0d1117] p-6 rounded-xl border border-gray-800 shadow-2xl">
             <div class="flex items-center gap-8">
-                <h1 class="text-2xl font-black italic text-white tracking-tighter uppercase">PRO-SCOUT <span class="text-[var(--neon)]">V11</span></h1>
+                <h1 class="text-2xl font-black italic text-white tracking-tighter uppercase">SCOUT <span class="text-[var(--neon)]">V12</span></h1>
                 <div class="flex gap-2 p-1 bg-black rounded-lg">
-                    <button onclick="setPhase('toplu')" id="btn-toplu" class="btn-active text-[10px] font-black px-6 py-2 rounded uppercase tracking-widest transition-all">Toplu Alan</button>
-                    <button onclick="setPhase('topsuz')" id="btn-topsuz" class="text-[10px] font-black px-6 py-2 rounded uppercase tracking-widest text-gray-500 transition-all">Topsuz Alan</button>
+                    <button onclick="setPhase('toplu')" id="btn-toplu" class="btn-active text-[10px] font-black px-6 py-2 rounded uppercase transition-all">Toplu Alan</button>
+                    <button onclick="setPhase('topsuz')" id="btn-topsuz" class="text-[10px] font-black px-6 py-2 rounded uppercase text-gray-500 transition-all">Topsuz Alan</button>
                 </div>
             </div>
             
             <div class="flex gap-3">
-                <input id="manName" type="text" placeholder="Manuel Oyuncu..." class="bg-gray-900 border border-gray-700 text-xs p-3 rounded w-56 outline-none focus:border-green-500 text-white font-bold">
-                <button onclick="addManual()" class="bg-white text-black font-black px-6 rounded text-xs hover:bg-gray-200 uppercase">Ekle</button>
-                <button onclick="fetchData()" id="fetchBtn" class="bg-[var(--neon)] text-black font-black px-6 rounded text-xs hover:opacity-80 uppercase tracking-tighter">Oyuncu Öner</button>
+                <input id="manName" type="text" placeholder="Manuel Oyuncu Ekle..." class="bg-gray-900 border border-gray-700 text-xs p-3 rounded w-56 text-white outline-none focus:border-green-500">
+                <button onclick="addManual()" class="bg-white text-black font-black px-6 rounded text-xs uppercase hover:bg-gray-200">Ekle</button>
+                <button onclick="fetchData()" id="fetchBtn" class="bg-[var(--neon)] text-black font-black px-6 rounded text-xs uppercase hover:opacity-80">Oyuncu Öner</button>
             </div>
         </header>
 
         <div class="grid grid-cols-12 gap-8">
             <div class="col-span-3">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Canlı Veri & Analiz</h3>
-                    <span id="data-source" class="text-[9px] text-gray-700 font-mono">IDLE</span>
-                </div>
+                <h3 class="text-[10px] font-bold text-gray-500 mb-4 uppercase tracking-[0.2em]">Filtrelenmiş Veri Akışı</h3>
                 <div id="results" class="max-h-[680px] overflow-y-auto pr-2 space-y-3">
-                    <div class="text-center py-20 opacity-30">
-                        <p class="text-xs italic">Veritabanı bağlantısı hazır.<br>Analiz için "Oyuncu Öner"e basın.</p>
-                    </div>
+                    <div class="text-center py-20 opacity-30 text-xs italic italic">Sistem hazır. Veri çekmek için butona basın.</div>
                 </div>
             </div>
 
@@ -80,7 +75,7 @@
                 <div class="pitch" id="pitch"></div>
                 <div id="hint" class="invisible mt-4 text-center bg-green-500/10 border border-green-500/20 py-2 rounded-lg">
                     <span class="text-[11px] text-green-500 font-black animate-pulse uppercase tracking-widest">
-                        Oyuncu Seçildi! Yerleştirmek için sahadaki bir mevkiye (daireye) tıklayın.
+                        Oyuncu Seçildi! Yerleştirmek için sahadaki bir yuvaya tıklayın.
                     </span>
                 </div>
             </div>
@@ -106,79 +101,80 @@
         let squad = Array(11).fill(null);
         let currentPhase = 'toplu';
         let selectedPlayer = null;
+        let seenNames = new Set(); // Mükerrer oyuncu kontrolü
 
         async function fetchData() {
             const resDiv = document.getElementById('results');
-            const btn = document.getElementById('fetchBtn');
-            const sourceInfo = document.getElementById('data-source');
-            
-            btn.innerText = "SORGULANIYOR...";
-            resDiv.innerHTML = '<div class="py-20 text-center"><div class="animate-spin h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full inline-block mb-2"></div><p class="text-[10px] text-gray-500 font-mono uppercase">Wikipedia taranıyor...</p></div>';
+            resDiv.innerHTML = '<p class="text-[10px] text-center py-10 animate-pulse text-green-500">Wikipedia Taranıyor...</p>';
+            seenNames.clear();
 
             const sparql = `
-                SELECT DISTINCT ?name ?teamName WHERE {
+                SELECT DISTINCT ?name ?teamName ?desc WHERE {
                     ?player a <http://dbpedia.org/ontology/SoccerPlayer> ;
                             <http://xmlns.com/foaf/0.1/name> ?name ;
-                            <http://dbpedia.org/ontology/team> ?team .
+                            <http://dbpedia.org/ontology/team> ?team ;
+                            <http://dbpedia.org/ontology/abstract> ?desc .
                     ?team <http://xmlns.com/foaf/0.1/name> ?teamName .
-                } LIMIT 50`;
+                    FILTER (LANG(?desc) = "en")
+                } LIMIT 100`;
 
             try {
                 const response = await fetch("https://dbpedia.org/sparql?query=" + encodeURIComponent(sparql) + "&format=json");
                 const data = await response.json();
-                sourceInfo.innerText = "WIKI_LIVE";
                 renderResults(data.results.bindings);
             } catch (e) {
-                sourceInfo.innerText = "BACKUP_ENGINE";
                 renderResults(null); 
-            } finally {
-                btn.innerText = "Oyuncu Öner";
             }
         }
 
         function renderResults(apiData) {
             const resDiv = document.getElementById('results');
             resDiv.innerHTML = "";
-
+            
             const backup = [
-                {name: {value: "Viktor Gyökeres"}, teamName: {value: "Sporting CP"}},
-                {name: {value: "Lamine Yamal"}, teamName: {value: "Barcelona"}},
-                {name: {value: "Kenan Yıldız"}, teamName: {value: "Juventus"}},
-                {name: {value: "Erling Haaland"}, teamName: {value: "Man City"}},
-                {name: {value: "Arda Güler"}, teamName: {value: "Real Madrid"}},
-                {name: {value: "Nico Williams"}, teamName: {value: "Athletic Bilbao"}},
-                {name: {value: "Jamal Musiala"}, teamName: {value: "Bayern Munich"}},
-                {name: {value: "Bukayo Saka"}, teamName: {value: "Arsenal"}}
+                {name: {value: "Viktor Gyökeres"}, teamName: {value: "Sporting CP"}, desc: {value: "striker forward"}},
+                {name: {value: "Lamine Yamal"}, teamName: {value: "Barcelona"}, desc: {value: "winger"}},
+                {name: {value: "Kenan Yıldız"}, teamName: {value: "Juventus"}, desc: {value: "forward"}},
+                {name: {value: "Rodri"}, teamName: {value: "Man City"}, desc: {value: "midfielder"}}
             ];
 
             const players = apiData && apiData.length > 0 ? apiData : backup;
 
-            players.forEach((p, i) => {
+            players.forEach(p => {
                 const name = p.name.value;
                 const team = p.teamName.value;
-                if(name.length < 3 || name.includes("http")) return;
+                const desc = p.desc.value.toLowerCase();
 
-                // Rastgele durum atama
+                // AYNI OYUNCUYU ENGELLE
+                if(seenNames.has(name) || name.length < 3 || name.includes("http")) return;
+                seenNames.add(name);
+
+                // MEVKİ TESPİTİ
+                let detectedPos = "MO";
+                if(desc.includes("goalkeeper")) detectedPos = "KL";
+                else if(desc.includes("defender") || desc.includes("centre-back")) detectedPos = "STP";
+                else if(desc.includes("forward") || desc.includes("striker")) detectedPos = "SNT";
+                else if(desc.includes("winger") || desc.includes("winger")) detectedPos = "KANAT";
+
                 const rand = Math.random();
-                const statusClass = rand > 0.7 ? 'status-tired' : (rand < 0.1 ? 'status-injured' : 'status-fit');
-                const statusText = rand > 0.7 ? 'Yorgun' : (rand < 0.1 ? 'Sakat' : 'Hazır');
+                const statusClass = rand > 0.8 ? 'status-tired' : (rand < 0.1 ? 'status-injured' : 'status-fit');
 
                 const card = document.createElement('div');
                 card.className = 'scout-card';
                 card.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <span class="text-[11px] font-black text-white uppercase tracking-tighter">${name}</span>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[11px] font-black text-white uppercase">${name}</span>
                         <span class="status-dot ${statusClass}"></span>
                     </div>
-                    <div class="flex justify-between mt-1 items-center">
-                        <span class="text-[9px] text-gray-500 font-bold uppercase">${team}</span>
-                        <span class="text-[8px] text-gray-600 uppercase font-mono">${statusText}</span>
+                    <div class="flex justify-between items-center text-[9px] font-bold">
+                        <span class="text-gray-500 uppercase">${team}</span>
+                        <span class="text-[var(--neon)]">${detectedPos}</span>
                     </div>
                 `;
                 card.onclick = () => {
                     document.querySelectorAll('.scout-card').forEach(c => c.classList.remove('selected-player'));
                     card.classList.add('selected-player');
-                    selectedPlayer = { name, team, statusClass };
+                    selectedPlayer = { name, detectedPos, statusClass };
                     document.getElementById('hint').classList.remove('invisible');
                 };
                 resDiv.appendChild(card);
@@ -192,15 +188,12 @@
                 const p = squad[i];
                 const div = document.createElement('div');
                 div.className = `pos-slot ${p ? 'slot-active' : ''}`;
-                div.style.top = slot.t + "%";
-                div.style.left = slot.l + "%";
-                
+                div.style.top = slot.t + "%"; div.style.left = slot.l + "%";
                 div.innerHTML = `
                     <span class="text-[8px] text-gray-600 font-black mb-1">${slot.pos}</span>
                     <span class="text-[9px] font-black text-white text-center leading-tight uppercase px-1">${p ? p.name.split(' ')[0] : ''}</span>
-                    ${p ? `<span class="status-dot ${p.statusClass} mt-1" style="width:6px; height:6px;"></span>` : ''}
+                    ${p ? `<div class="status-dot ${p.statusClass} mt-1" style="width:5px; height:5px;"></div>` : ''}
                 `;
-
                 div.onclick = () => {
                     if (selectedPlayer) {
                         squad[i] = selectedPlayer;
@@ -208,9 +201,9 @@
                         document.getElementById('hint').classList.add('invisible');
                         document.querySelectorAll('.scout-card').forEach(c => c.classList.remove('selected-player'));
                         renderPitch();
-                    } else if (squad[i]) {
-                        squad[i] = null;
-                        renderPitch();
+                    } else if (squad[i]) { 
+                        squad[i] = null; 
+                        renderPitch(); 
                     }
                 };
                 pitch.appendChild(div);
@@ -219,21 +212,20 @@
 
         function setPhase(p) {
             currentPhase = p;
-            document.getElementById('btn-toplu').className = p === 'toplu' ? 'btn-active text-[10px] font-black px-6 py-2 rounded uppercase tracking-widest' : 'text-[10px] font-black px-6 py-2 rounded uppercase tracking-widest text-gray-500';
-            document.getElementById('btn-topsuz').className = p === 'topsuz' ? 'btn-active text-[10px] font-black px-6 py-2 rounded uppercase tracking-widest' : 'text-[10px] font-black px-6 py-2 rounded uppercase tracking-widest text-gray-500';
+            document.getElementById('btn-toplu').className = p === 'toplu' ? 'btn-active text-[10px] font-black px-6 py-2 rounded uppercase' : 'text-[10px] font-black px-6 py-2 rounded uppercase text-gray-500';
+            document.getElementById('btn-topsuz').className = p === 'topsuz' ? 'btn-active text-[10px] font-black px-6 py-2 rounded uppercase' : 'text-[10px] font-black px-6 py-2 rounded uppercase text-gray-500';
             renderPitch();
         }
 
         function addManual() {
             const name = document.getElementById('manName').value;
             if(name) {
-                selectedPlayer = { name, team: "MANUEL", statusClass: 'status-fit' };
+                selectedPlayer = { name, detectedPos: "MANUEL", statusClass: 'status-fit' };
                 document.getElementById('hint').classList.remove('invisible');
                 document.getElementById('manName').value = "";
             }
         }
 
-        // Başlangıç çizimi
         renderPitch();
     </script>
 </body>
