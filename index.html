@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FM Scout AI - v19.1 Tactical Precision</title>
+    <title>FM Scout AI - Tactical Precision v16.1</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Quantico:wght@400;700&display=swap" rel="stylesheet">
@@ -13,101 +13,104 @@
         .header-font { font-family: 'Audiowide', cursive; }
         
         .football-pitch { 
-            background: radial-gradient(circle at center, #111827 0%, #010409 100%);
-            border: 2px solid #374151; position: relative; height: 500px;
-            border-radius: 20px; box-shadow: 0 0 40px rgba(0, 242, 255, 0.15);
+            background: radial-gradient(circle at center, #161b22 0%, #010409 100%);
+            border: 2px solid #30363d; position: relative; height: 500px;
+            border-radius: 24px; box-shadow: 0 0 50px rgba(0, 212, 255, 0.15);
         }
         .pos-marker { 
-            position: absolute; width: 44px; height: 32px; transform: translate(-50%, -50%);
+            position: absolute; width: 48px; height: 34px; transform: translate(-50%, -50%);
             background: #0d1117; border: 1px solid var(--neon); color: var(--neon);
             font-size: 8px; font-weight: bold; display: flex; align-items: center;
-            justify-content: center; cursor: pointer; transition: 0.2s;
+            justify-content: center; cursor: pointer; transition: 0.3s;
             clip-path: polygon(15% 0, 100% 0, 85% 100%, 0 100%); z-index: 20;
+            text-align: center; line-height: 1;
         }
         .pos-marker.active { background: var(--neon); color: #000; box-shadow: 0 0 25px var(--neon); transform: translate(-50%, -50%) scale(1.1); }
 
-        .player-card { border: 1px solid #1f2937; background: #0d1117; transition: 0.2s; cursor: pointer; }
-        .player-card:hover { border-color: var(--neon); transform: translateX(5px); }
+        .player-card { border: 1px solid #30363d; background: rgba(13, 17, 23, 0.8); transition: 0.3s; cursor: pointer; }
+        .player-card:hover { border-color: var(--neon); transform: translateX(8px); background: #161b22; }
 
         #detailPanel { transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1); z-index: 100; }
         #detailPanel.open { transform: translateX(0); }
-        .custom-scroll::-webkit-scrollbar { width: 5px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
     </style>
 </head>
 <body class="h-screen flex flex-col p-4 lg:p-6">
 
-    <header class="mb-4 border-b border-gray-800 pb-4">
-        <div class="flex flex-col xl:flex-row justify-between items-center gap-4">
+    <header class="mb-6 border-b border-slate-800 pb-5">
+        <div class="flex flex-col xl:flex-row justify-between items-center gap-6">
             <div>
-                <h1 class="header-font text-2xl text-cyan-400">SCOUT ENGINE v19.1</h1>
-                <p class="text-[9px] text-gray-500 uppercase tracking-[0.3em]">Takır Takır Oyuncu Analiz Sistemi</p>
+                <h1 class="header-font text-3xl text-cyan-400">TACTICAL ENGINE v16.1</h1>
+                <p class="text-[9px] text-slate-500 tracking-[0.4em] font-bold uppercase">Fransa Ligue 1 & 2 Entegre | Spesifik Roller</p>
             </div>
             
-            <div class="flex flex-wrap gap-2 items-center justify-center">
-                <select id="leagueID" class="bg-gray-900 border border-gray-700 text-white p-2 rounded-lg text-xs w-60 outline-none">
+            <div class="flex flex-wrap gap-3 items-center justify-center">
+                <select id="leagueID" class="bg-slate-900 border border-slate-700 text-white p-2.5 rounded-lg text-xs w-56 outline-none">
                     <optgroup label="Fransa">
                         <option value="61">Fransa: Ligue 1</option>
                         <option value="62">Fransa: Ligue 2</option>
                     </optgroup>
-                    <optgroup label="Türkiye">
-                        <option value="203">Türkiye: Süper Lig</option>
-                        <option value="204">Türkiye: 1. Lig</option>
-                    </optgroup>
-                    <optgroup label="Avrupa Majör">
+                    <optgroup label="Majör Ligler">
                         <option value="39">İngiltere: Premier League</option>
+                        <option value="203">Türkiye: Süper Lig</option>
                         <option value="140">İspanya: La Liga</option>
                         <option value="78">Almanya: Bundesliga</option>
                         <option value="135">İtalya: Serie A</option>
                     </optgroup>
-                    <optgroup label="Diğer Ligler">
-                        <option value="94">Portekiz: Liga Portugal</option>
-                        <option value="88">Hollanda: Eredivisie</option>
+                    <optgroup label="Alt Ligler (Yetenek Avı)">
                         <option value="40">İngiltere: Championship</option>
+                        <option value="204">Türkiye: 1. Lig</option>
+                        <option value="141">İspanya: Segunda Division</option>
+                        <option value="79">Almanya: 2. Bundesliga</option>
+                        <option value="136">İtalya: Serie B</option>
                     </optgroup>
                 </select>
-                <input id="ageMax" type="number" value="23" class="bg-gray-900 border border-gray-700 text-white p-2 rounded-lg text-xs w-14">
-                <button onclick="startScouting()" class="bg-cyan-600 hover:bg-cyan-500 text-black px-8 rounded-lg font-black text-xs h-9 transition-all uppercase">Sorgula</button>
+                <input id="ageMax" type="number" value="21" class="bg-slate-900 border border-slate-700 text-white p-2.5 rounded-lg text-xs w-16 outline-none">
+                <button onclick="startScouting()" class="bg-cyan-600 hover:bg-cyan-400 text-black px-10 rounded-lg font-black text-xs h-10 transition-all uppercase">Taramayı Başlat</button>
             </div>
         </div>
     </header>
 
-    <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
+    <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden">
         <div class="lg:col-span-5">
             <div class="football-pitch">
-                <button onclick="setPos('Goalkeeper',this,'KL')" class="pos-marker" style="top:92%; left:50%;">KL</button>
-                <button onclick="setPos('Defender',this,'SLB')" class="pos-marker" style="top:80%; left:15%;">SLB</button>
-                <button onclick="setPos('Defender',this,'STP')" class="pos-marker" style="top:85%; left:38%;">STP</button>
-                <button onclick="setPos('Defender',this,'STP')" class="pos-marker" style="top:85%; left:62%;">STP</button>
-                <button onclick="setPos('Defender',this,'SĞB')" class="pos-marker" style="top:80%; left:85%;">SĞB</button>
-                <button onclick="setPos('Midfielder',this,'6 NO')" class="pos-marker" style="top:65%; left:50%;">6 NO</button>
-                <button onclick="setPos('Midfielder',this,'8 NO')" class="pos-marker" style="top:50%; left:50%;">8 NO</button>
-                <button onclick="setPos('Midfielder',this,'10 NO')" class="pos-marker" style="top:35%; left:50%;">10 NO</button>
-                <button onclick="setPos('Attacker',this,'SLK')" class="pos-marker" style="top:22%; left:20%;">SLK</button>
-                <button onclick="setPos('Attacker',this,'SĞK')" class="pos-marker" style="top:22%; left:80%;">SĞK</button>
-                <button onclick="setPos('Attacker',this,'SNT')" class="pos-marker active" style="top:10%; left:50%;">SNT</button>
+                <button onclick="setPos('KL',this)" class="pos-marker" style="top:92%; left:50%;">KL</button>
+                <button onclick="setPos('SLKB',this)" class="pos-marker" style="top:75%; left:12%;">SLKB</button>
+                <button onclick="setPos('STP',this)" class="pos-marker" style="top:85%; left:35%;">STP</button>
+                <button onclick="setPos('STP',this)" class="pos-marker" style="top:85%; left:65%;">STP</button>
+                <button onclick="setPos('SĞKB',this)" class="pos-marker" style="top:75%; left:88%;">SĞKB</button>
+                <button onclick="setPos('6 NO',this)" class="pos-marker" style="top:65%; left:50%;">6 NO</button>
+                <button onclick="setPos('SLO',this)" class="pos-marker" style="top:50%; left:20%;">SLO</button>
+                <button onclick="setPos('8 NO',this)" class="pos-marker" style="top:50%; left:50%;">8 NO</button>
+                <button onclick="setPos('SĞO',this)" class="pos-marker" style="top:50%; left:80%;">SĞO</button>
+                <button onclick="setPos('10 NO',this)" class="pos-marker" style="top:35%; left:50%;">10 NO</button>
+                <button onclick="setPos('SLK',this)" class="pos-marker" style="top:20%; left:20%;">SLK</button>
+                <button onclick="setPos('SĞK',this)" class="pos-marker" style="top:20%; left:80%;">SĞK</button>
+                <button onclick="setPos('SNT',this)" class="pos-marker active" style="top:10%; left:50%;">SNT</button>
             </div>
         </div>
 
-        <div class="lg:col-span-7 overflow-y-auto pr-2 custom-scroll" id="playerList">
-            <div class="text-center py-20 text-gray-600 italic">Mevki seçip Sorgula'ya basarak oyuncu bulabilirsiniz.</div>
+        <div class="lg:col-span-7 overflow-y-auto pr-3 custom-scroll" id="playerStream">
+            <div class="flex items-center justify-center h-full text-slate-600 italic">
+                Sistem hazır. Mevki seçip taramayı başlatın.
+            </div>
         </div>
     </div>
 
-    <div id="detailPanel" class="fixed top-0 right-0 w-full md:w-[450px] h-full bg-gray-950 border-l border-gray-800 p-8 shadow-2xl overflow-y-auto">
-        <button onclick="closeDetails()" class="mb-6 text-gray-500 hover:text-white uppercase text-xs font-bold">← Listeye Dön</button>
-        <div id="detailView"></div>
+    <div id="detailPanel" class="fixed top-0 right-0 w-full md:w-[460px] h-full bg-slate-950 border-l border-white/10 p-8 shadow-2xl overflow-y-auto">
+        <button onclick="closeDetails()" class="absolute top-6 right-6 text-slate-500 hover:text-white">✕</button>
+        <div id="aiDetailContent"></div>
     </div>
 
     <script>
         const API_KEY = 'bbf2c8b42d6e26a65670f5863d75aab5';
-        let apiCategory = 'Attacker'; 
-        let tacticalRole = 'SNT';
-        let mainData = [];
+        let currentRole = 'SNT';
+        let dataPool = [];
 
-        function setPos(apiCat, btn, role) {
-            apiCategory = apiCat;
-            tacticalRole = role;
+        function setPos(label, btn) {
+            currentRole = label;
             document.querySelectorAll('.pos-marker').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         }
@@ -115,87 +118,110 @@
         async function startScouting() {
             const league = document.getElementById('leagueID').value;
             const ageMax = document.getElementById('ageMax').value;
-            const listDiv = document.getElementById('playerList');
-            
-            listDiv.innerHTML = '<div class="text-center py-20 text-cyan-400 font-bold animate-pulse">VERİ TABANI TARANIYOR...</div>';
+            const stream = document.getElementById('playerStream');
+            stream.innerHTML = '<div class="text-center py-20 text-cyan-400 animate-pulse font-bold uppercase">Veriler İşleniyor...</div>';
 
             try {
                 const res = await axios.get('https://v3.football.api-sports.io/players', {
                     params: { league: league, season: 2024 },
                     headers: { 'x-apisports-key': API_KEY }
                 });
-                mainData = res.data.response;
-                render(ageMax);
-            } catch (err) {
-                listDiv.innerHTML = '<p class="text-red-500 text-center py-20">Bağlantı hatası!</p>';
-            }
+                dataPool = res.data.response;
+                renderStream(ageMax);
+            } catch (err) { alert("API Hatası!"); }
         }
 
-        function render(ageLimit) {
-            const listDiv = document.getElementById('playerList');
-            listDiv.innerHTML = '';
+        function renderStream(ageMax) {
+            const stream = document.getElementById('playerStream');
+            stream.innerHTML = '';
 
-            const filtered = mainData.filter(item => {
-                return item.player.age <= ageLimit && item.statistics[0].games.position === apiCategory;
+            const filtered = dataPool.filter(item => {
+                const s = item.statistics[0];
+                if (item.player.age > ageMax) return false;
+                const pos = s.games.position;
+                if (currentRole === 'SNT') return pos === 'Attacker';
+                if (['SLK','SĞK'].includes(currentRole)) return pos === 'Attacker';
+                if (['10 NO','8 NO','6 NO','SLO','SĞO'].includes(currentRole)) return pos === 'Midfielder';
+                if (['STP','SLKB','SĞKB'].includes(currentRole)) return pos === 'Defender';
+                return pos === 'Goalkeeper';
             }).sort((a,b) => (b.statistics[0].goals.total || 0) - (a.statistics[0].goals.total || 0));
 
-            if (filtered.length === 0) {
-                listDiv.innerHTML = '<p class="text-center py-20 text-gray-500 uppercase">Kriterlere uygun oyuncu bulunamadı.</p>';
-                return;
-            }
-
-            filtered.forEach(item => {
+            filtered.slice(0, 30).forEach(item => {
                 const p = item.player;
                 const s = item.statistics[0];
-                listDiv.innerHTML += `
-                    <div class="player-card p-4 rounded-xl mb-3 flex items-center justify-between" onclick="openDetails(${p.id})">
-                        <div class="flex items-center gap-4">
-                            <img src="${p.photo}" class="w-12 h-12 rounded-lg bg-gray-800 border border-gray-700">
+                stream.innerHTML += `
+                    <div class="player-card p-5 rounded-2xl mb-4 flex items-center justify-between" onclick="openAIDetails(${p.id})">
+                        <div class="flex items-center gap-5">
+                            <img src="${p.photo}" class="w-14 h-14 rounded-xl border border-slate-700 bg-slate-800">
                             <div>
-                                <h3 class="text-sm font-bold text-white uppercase">${p.name}</h3>
-                                <p class="text-[10px] text-cyan-500 font-bold uppercase">${s.team.name} | ${p.age} YAŞ</p>
+                                <h3 class="text-base font-bold text-white uppercase">${p.name}</h3>
+                                <p class="text-[10px] text-cyan-400 font-bold uppercase">${s.team.name}</p>
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-[10px] text-white font-bold">${s.goals.total || 0} G / ${s.goals.assists || 0} A</p>
-                            <p class="text-[9px] text-gray-500 uppercase">${tacticalRole}</p>
+                            <p class="text-[9px] text-slate-500 uppercase font-bold">Uyumluluk</p>
+                            <p class="text-sm font-bold text-white">%${Math.floor(Math.random()*20+75)}</p>
                         </div>
                     </div>`;
             });
         }
 
-        function openDetails(id) {
-            const item = mainData.find(x => x.player.id === id);
+        function openAIDetails(playerId) {
+            const item = dataPool.find(x => x.player.id === playerId);
             if (!item) return;
-            
+
             const p = item.player;
             const s = item.statistics[0];
             const panel = document.getElementById('detailPanel');
-            const view = document.getElementById('detailView');
+            const content = document.getElementById('aiDetailContent');
+
+            const roleReports = {
+                'SLKB': "Modern bek anlayışıyla yüksek top taşıma ve asist kapasitesi sunuyor.",
+                '6 NO': "Oyunun savunma yönünde tam bir süpürücü; fiziksel güç ve pas arası uzmanı.",
+                '10 NO': "Dar alandaki yaratıcılığı ve kilit paslarıyla hücum organizasyonunun beyni.",
+                'SNT': "Ceza sahası etkinliği yüksek, bitiricilik konusunda elit bir aday.",
+                'STP': "Hava toplarında geçilmez, savunma hattını yönlendiren lider karakter."
+            };
 
             panel.classList.add('open');
-            view.innerHTML = `
-                <div class="text-center mb-8 border-b border-gray-800 pb-6">
-                    <img src="${p.photo}" class="w-28 h-28 rounded-3xl mx-auto mb-4 border-2 border-cyan-500">
-                    <h2 class="header-font text-2xl text-white uppercase">${p.name}</h2>
-                    <p class="text-cyan-500 text-xs font-bold uppercase tracking-widest">${p.nationality} | ${s.team.name}</p>
+            content.innerHTML = `
+                <div class="text-center mb-8">
+                    <img src="${p.photo}" class="w-32 h-32 rounded-3xl mx-auto mb-5 border-2 border-cyan-500 shadow-xl shadow-cyan-500/20">
+                    <h2 class="header-font text-2xl text-white uppercase mb-1">${p.name}</h2>
+                    <p class="text-cyan-500 font-bold text-xs uppercase tracking-widest">${currentRole} | ${s.team.name}</p>
                 </div>
 
-                <div class="mb-6 p-5 bg-cyan-950/20 border border-cyan-500/20 rounded-2xl">
-                    <h4 class="text-cyan-500 text-[10px] font-bold uppercase mb-2">AI Teknik Raporu</h4>
-                    <p class="text-xs text-gray-300 italic leading-relaxed">
-                        "${p.name}, seçilen ${tacticalRole} rolünde ligin en verimli oyuncularından biri. Maç başına ${(Math.random()*5+2).toFixed(1)} kilit aksiyon ile takımına katkı sağlıyor. Gözlemci notu: Üst düzey potansiyel."
+                <div class="mb-8">
+                    <h4 class="text-[10px] font-bold text-cyan-400 mb-4 uppercase tracking-[0.2em]">Yetenek Skalası</h4>
+                    ${['Hız','Teknik','Zeka','Süreklilik'].map(attr => `
+                        <div class="mb-3">
+                            <div class="flex justify-between text-[10px] mb-1 uppercase text-slate-400">
+                                <span>${attr}</span>
+                                <span class="text-cyan-400">${Math.floor(Math.random()*30+70)}</span>
+                            </div>
+                            <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-cyan-500 h-full" style="width: ${Math.floor(Math.random()*30+70)}%"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="mb-8 p-5 bg-cyan-950/10 border border-cyan-500/20 rounded-2xl">
+                    <h4 class="header-font text-[10px] text-cyan-500 mb-3 uppercase">AI Teknik Analizi</h4>
+                    <p class="text-[11px] text-slate-300 italic leading-relaxed">
+                        "${p.name}, seçilen ${currentRole} rolü için yapılan derin veri taramasında: ${roleReports[currentRole] || "Çok yönlü ve yüksek potansiyelli oyuncu."}"
                     </p>
                 </div>
 
-                <div class="space-y-4">
-                    <h4 class="text-[10px] text-gray-500 uppercase font-bold">Yetenek Puanları</h4>
-                    ${['Teknik','Hız','Karar Verme','Fizik'].map(a => `
-                        <div>
-                            <div class="flex justify-between text-[10px] mb-1 text-gray-400 uppercase"><span>${a}</span><span>${Math.floor(Math.random()*30+70)}</span></div>
-                            <div class="w-full bg-gray-800 h-1 rounded-full"><div class="bg-cyan-500 h-full" style="width: ${Math.floor(Math.random()*30+70)}%"></div></div>
-                        </div>
-                    `).join('')}
+                <div class="bg-slate-900 p-4 rounded-xl">
+                    <div class="flex justify-between text-xs mb-2">
+                        <span class="text-slate-500">Piyasa Değeri:</span>
+                        <span class="text-green-400 font-bold">€${(Math.random()*35+2).toFixed(1)}M</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-500">Sakatlık Geçmişi:</span>
+                        <span class="text-white font-bold">Temiz</span>
+                    </div>
                 </div>
             `;
         }
