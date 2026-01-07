@@ -2,195 +2,206 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>FM Scout AI - Pro Scouter TR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FM Scout AI - Pro Scouter v9</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Quantico:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --main-cyan: #00d4ff; --dark-bg: #030712; }
-        body { font-family: 'Quantico', sans-serif; background-color: var(--dark-bg); color: #f1f5f9; }
+        :root { --neon: #00f2ff; --bg: #020617; }
+        body { font-family: 'Quantico', sans-serif; background-color: var(--bg); color: #f1f5f9; margin: 0; overflow-x: hidden; }
         .header-font { font-family: 'Audiowide', cursive; }
         
         /* Taktik Saha */
         .football-pitch { 
-            background: linear-gradient(to bottom, #0f172a, #020617);
-            border: 2px solid #1e293b; position: relative; height: 550px;
-            border-radius: 24px; box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
-            margin-bottom: 20px;
+            background: radial-gradient(circle, #1e293b 0%, #020617 100%);
+            border: 2px solid #334155; position: relative; height: 500px;
+            border-radius: 20px; box-shadow: 0 0 30px rgba(0, 242, 255, 0.1);
         }
         .pos-marker { 
-            position: absolute; width: 48px; height: 32px; transform: translate(-50%, -50%);
-            background: #1e293b; border: 1px solid var(--main-cyan);
-            color: var(--main-cyan); font-size: 10px; font-weight: bold;
+            position: absolute; width: 46px; height: 32px; transform: translate(-50%, -50%);
+            background: #0f172a; border: 1px solid var(--neon);
+            color: var(--neon); font-size: 10px; font-weight: bold;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.2s; clip-path: polygon(0 0, 100% 0, 85% 100%, 15% 100%);
-            z-index: 10;
+            cursor: pointer; transition: 0.2s; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            z-index: 20;
         }
-        .pos-marker:hover, .pos-marker.active { 
-            background: var(--main-cyan); color: #000; box-shadow: 0 0 15px var(--main-cyan);
-        }
+        .pos-marker.active { background: var(--neon); color: #000; box-shadow: 0 0 20px var(--neon); }
 
-        /* Liste ve Kartlar */
-        .player-row { 
-            background: rgba(30, 41, 59, 0.6); 
-            border: 1px solid #334155; border-radius: 12px;
-            transition: 0.3s; margin-bottom: 8px;
+        /* Oyuncu Kartı Tasarımı - Veri Odaklı */
+        .player-card { 
+            background: rgba(15, 23, 42, 0.8); border: 1px solid #1e293b;
+            margin-bottom: 12px; padding: 16px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 20px; transition: 0.3s;
         }
-        .player-row:hover { border-color: var(--main-cyan); }
-        .stat-value { font-family: 'Audiowide', cursive; color: #fff; font-size: 1.1rem; }
+        .player-card:hover { border-color: var(--neon); background: rgba(30, 41, 59, 0.5); }
         
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        /* Stat Paneli - Kaybolmayı Önleyen Sabit Genişlik */
+        .stat-container { 
+            display: flex; gap: 8px; flex-shrink: 0; min-width: 280px; justify-content: flex-end;
+        }
+        .stat-box { 
+            background: #1e293b; width: 60px; height: 50px; 
+            border-radius: 8px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; border: 1px solid #334155;
+        }
+        .stat-label { font-size: 8px; color: #94a3b8; font-weight: bold; margin-bottom: 2px; text-transform: uppercase; }
+        .stat-val { font-family: 'Audiowide', cursive; font-size: 15px; color: #fff; line-height: 1; }
         
-        select, input { background: #0f172a !important; border: 1px solid #334155 !important; color: white !important; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 lg:p-8">
 
-    <div class="max-w-[1400px] mx-auto">
-        <header class="flex flex-col lg:flex-row justify-between items-center mb-8 border-b border-slate-800 pb-6 gap-4">
+    <div class="max-w-7xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 border-b border-slate-800 pb-6 gap-6">
             <div>
-                <h1 class="header-font text-3xl text-cyan-400 tracking-wider text-center lg:text-left">GÖZLEM MERKEZİ v7</h1>
-                <p class="text-[10px] text-slate-500 tracking-[0.4em] uppercase mt-1 text-center lg:text-left">Hatasız Veri Akışı | Türkçe Arayüz</p>
+                <h1 class="header-font text-3xl text-cyan-400 tracking-tighter">SCOUT ALPHA v9.0</h1>
+                <p class="text-[10px] text-slate-500 tracking-[0.4em] uppercase font-bold">Gerçek Zamanlı Veri Analizi</p>
             </div>
             
-            <div class="flex flex-wrap gap-3 justify-center">
+            <div class="flex flex-wrap gap-3 items-end">
                 <div class="flex flex-col">
-                    <label class="text-[9px] uppercase font-bold text-slate-500 mb-1">Lig</label>
-                    <select id="leagueID" class="p-2 rounded text-xs w-48 outline-none focus:border-cyan-400">
-                        <option value="39">Ingiltere: Premier League</option>
-                        <option value="203">Turkiye: Super Lig</option>
-                        <option value="140">Ispanya: La Liga</option>
-                        <option value="78">Almanya: Bundesliga</option>
-                        <option value="135">Italya: Serie A</option>
-                        <option value="61">Fransa: Ligue 1</option>
-                        <option value="71">Brezilya: Serie A</option>
-                        <option value="94">Portekiz: Primeira Liga</option>
-                        <option value="40">Ingiltere: Championship</option>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-1">Lig</label>
+                    <select id="leagueID" class="bg-slate-900 border border-slate-700 text-white p-2 rounded text-xs w-48 outline-none focus:border-cyan-400">
+                        <option value="39">Ingiltere Premier League</option>
+                        <option value="203">Turkiye Super Lig</option>
+                        <option value="140">Ispanya La Liga</option>
+                        <option value="78">Almanya Bundesliga</option>
+                        <option value="135">Italya Serie A</option>
+                        <option value="71">Brezilya Serie A</option>
+                        <option value="94">Portekiz Liga</option>
                     </select>
                 </div>
                 <div class="flex flex-col">
-                    <label class="text-[9px] uppercase font-bold text-slate-500 mb-1">Max Yaş</label>
-                    <input id="ageMax" type="number" value="23" class="p-2 rounded text-xs w-16 outline-none focus:border-cyan-400">
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-1">Max Yas</label>
+                    <input id="ageMax" type="number" value="23" class="bg-slate-900 border border-slate-700 text-white p-2 rounded text-xs w-16 outline-none">
                 </div>
-                <button onclick="runGlobalScout()" class="bg-cyan-600 hover:bg-cyan-500 text-black px-8 rounded font-bold text-xs transition-all self-end h-[34px]">TARAMAYI BAŞLAT</button>
+                <button onclick="startScouting()" class="bg-cyan-600 hover:bg-cyan-500 text-black px-6 rounded font-black text-xs h-[34px] transition-all">SORGULA</button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div class="lg:col-span-5">
                 <div class="football-pitch">
-                    <button onclick="setSearch('Goalkeeper', 'KL', this)" class="pos-marker" style="top: 90%; left: 50%;">KL</button>
+                    <button onclick="updatePos('Goalkeeper','KL',this)" class="pos-marker" style="top:90%; left:50%;">KL</button>
                     
-                    <button onclick="setSearch('Defender', 'SLB', this)" class="pos-marker" style="top: 75%; left: 15%;">SLB</button>
-                    <button onclick="setSearch('Defender', 'STP', this)" class="pos-marker" style="top: 78%; left: 40%;">STP</button>
-                    <button onclick="setSearch('Defender', 'STP', this)" class="pos-marker" style="top: 78%; left: 60%;">STP</button>
-                    <button onclick="setSearch('Defender', 'SĞB', this)" class="pos-marker" style="top: 75%; left: 85%;">SĞB</button>
+                    <button onclick="updatePos('Defender','SLB',this)" class="pos-marker" style="top:75%; left:15%;">SLB</button>
+                    <button onclick="updatePos('Defender','STP',this)" class="pos-marker" style="top:78%; left:38%;">STP</button>
+                    <button onclick="updatePos('Defender','STP',this)" class="pos-marker" style="top:78%; left:62%;">STP</button>
+                    <button onclick="updatePos('Defender','SGB',this)" class="pos-marker" style="top:75%; left:85%;">SGB</button>
                     
-                    <button onclick="setSearch('Midfielder', 'ÖNL', this)" class="pos-marker" style="top: 60%; left: 50%;">ÖNL</button>
-                    <button onclick="setSearch('Midfielder', 'OS', this)" class="pos-marker" style="top: 45%; left: 35%;">OS</button>
-                    <button onclick="setSearch('Midfielder', 'OS', this)" class="pos-marker" style="top: 45%; left: 65%;">OS</button>
+                    <button onclick="updatePos('Midfielder','ONL',this)" class="pos-marker" style="top:60%; left:50%;">ONL</button>
+                    <button onclick="updatePos('Midfielder','OS',this)" class="pos-marker" style="top:45%; left:35%;">OS</button>
+                    <button onclick="updatePos('Midfielder','OS',this)" class="pos-marker" style="top:45%; left:65%;">OS</button>
                     
-                    <button onclick="setSearch('Attacker', 'SLK', this)" class="pos-marker" style="top: 25%; left: 18%;">SLK</button>
-                    <button onclick="setSearch('Attacker', 'SĞK', this)" class="pos-marker" style="top: 25%; left: 82%;">SĞK</button>
-                    <button onclick="setSearch('Attacker', 'SNT', this)" class="pos-marker active" style="top: 12%; left: 50%;">SNT</button>
+                    <button onclick="updatePos('Attacker','SLK',this)" class="pos-marker" style="top:25%; left:18%;">SLK</button>
+                    <button onclick="updatePos('Attacker','SGK',this)" class="pos-marker" style="top:25%; left:82%;">SGK</button>
+                    <button onclick="updatePos('Attacker','SNT',this)" class="pos-marker active" style="top:12%; left:50%;">SNT</button>
                 </div>
             </div>
 
-            <div class="lg:col-span-7 h-[550px] overflow-y-auto pr-4 custom-scroll" id="scrollContainer">
-                <div id="statusMsg" class="hidden text-center py-20 text-cyan-400 font-bold tracking-widest animate-pulse uppercase text-xs">Veri Tabanı Analiz Ediliyor...</div>
-                <div id="resultsGrid" class="flex flex-col">
-                    </div>
+            <div class="lg:col-span-7 h-[550px] overflow-y-auto pr-2 custom-scroll" id="resultsArea">
+                <div id="loader" class="hidden text-center py-20">
+                    <div class="w-10 h-10 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p class="text-cyan-500 font-bold text-xs tracking-widest">VERILER ANALIZ EDILIYOR...</p>
+                </div>
+                <div id="playerGrid"></div>
             </div>
         </div>
     </div>
 
     <script>
-        const KEY = 'bbf2c8b42d6e26a65670f5863d75aab5';
-        let currentPos = 'SNT'; 
+        const API_KEY = 'bbf2c8b42d6e26a65670f5863d75aab5';
+        let activePosLabel = 'SNT';
 
-        function setSearch(type, short, btn) {
-            currentPos = short;
+        function updatePos(type, label, btn) {
+            activePosLabel = label;
             document.querySelectorAll('.pos-marker').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         }
 
-        async function runGlobalScout() {
+        async function startScouting() {
             const league = document.getElementById('leagueID').value;
-            const ageLimit = document.getElementById('ageMax').value;
-            const grid = document.getElementById('resultsGrid');
-            const msg = document.getElementById('statusMsg');
+            const ageMax = document.getElementById('ageMax').value;
+            const grid = document.getElementById('playerGrid');
+            const loader = document.getElementById('loader');
 
             grid.innerHTML = '';
-            msg.classList.remove('hidden');
+            loader.classList.remove('hidden');
 
             try {
-                const res = await axios.get('https://v3.football.api-sports.io/players', {
+                const response = await axios.get('https://v3.football.api-sports.io/players', {
                     params: { league: league, season: 2024 },
-                    headers: { 'x-apisports-key': KEY }
+                    headers: { 'x-apisports-key': API_KEY }
                 });
 
-                msg.classList.add('hidden');
-                
-                const rawPlayers = res.data.response;
-                
-                let filtered = rawPlayers.filter(item => {
+                loader.classList.add('hidden');
+                const players = response.data.response;
+
+                // Akıllı Filtreleme
+                const filtered = players.filter(item => {
                     const s = item.statistics[0];
-                    const p = item.player;
-                    if (p.age > ageLimit) return false;
-
-                    const apiPos = s.games.position;
-                    // Detaylı Rol Filtreleme
-                    if (currentPos === 'SNT') return apiPos === 'Attacker';
-                    if (currentPos === 'SLK' || currentPos === 'SĞK') return (apiPos === 'Attacker' || apiPos === 'Midfielder');
-                    if (currentPos === 'KL') return apiPos === 'Goalkeeper';
-                    if (currentPos === 'STP' || currentPos === 'SLB' || currentPos === 'SĞB') return apiPos === 'Defender';
-                    if (currentPos === 'ÖNL' || currentPos === 'OS') return apiPos === 'Midfielder';
+                    if (item.player.age > ageMax) return false;
                     
+                    const p = s.games.position;
+                    if (activePosLabel === 'SNT') return p === 'Attacker';
+                    if (activePosLabel === 'SLK' || activePosLabel === 'SGK') return p === 'Attacker' || p === 'Midfielder';
+                    if (activePosLabel === 'OS' || activePosLabel === 'ONL') return p === 'Midfielder';
+                    if (activePosLabel === 'STP' || activePosLabel === 'SLB' || activePosLabel === 'SGB') return p === 'Defender';
+                    if (activePosLabel === 'KL') return p === 'Goalkeeper';
                     return true;
+                }).sort((a, b) => (parseFloat(b.statistics[0].games.rating) || 0) - (parseFloat(a.statistics[0].games.rating) || 0));
+
+                if (filtered.length === 0) {
+                    grid.innerHTML = '<p class="text-center text-slate-500 py-10 italic">Aranan kriterlerde oyuncu bulunamadı.</p>';
+                    return;
+                }
+
+                filtered.slice(0, 15).forEach(p => {
+                    const s = p.statistics[0];
+                    const goals = s.goals.total || 0;
+                    const assists = s.goals.assists || 0;
+                    const rating = s.games.rating ? parseFloat(s.games.rating).toFixed(1) : "0.0";
+                    const aiScore = Math.round((rating * 10) + (p.player.age < 22 ? 5 : 0));
+
+                    grid.innerHTML += `
+                        <div class="player-card">
+                            <div class="flex items-center gap-4 flex-1 overflow-hidden">
+                                <img src="${p.player.photo}" class="w-14 h-14 rounded-lg bg-slate-800 border border-slate-700 flex-shrink-0">
+                                <div class="overflow-hidden">
+                                    <h3 class="text-white font-bold text-sm truncate uppercase tracking-tight">${p.player.name}</h3>
+                                    <p class="text-cyan-500 text-[10px] font-bold uppercase">${s.team.name} | ${p.player.age} YAŞ</p>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-container">
+                                <div class="stat-box">
+                                    <span class="stat-label">GOL</span>
+                                    <span class="stat-val">${goals}</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-label">AST</span>
+                                    <span class="stat-val text-cyan-400">${assists}</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-label">FORM</span>
+                                    <span class="stat-val text-yellow-500">${rating}</span>
+                                </div>
+                                <div class="stat-box border-cyan-500/40">
+                                    <span class="stat-label text-cyan-500">AI</span>
+                                    <span class="stat-val text-white">${aiScore}</span>
+                                </div>
+                            </div>
+                        </div>`;
                 });
 
-                // Önce en iyi reytingli olanları göster
-                filtered.sort((a, b) => (parseFloat(b.statistics[0].games.rating) || 0) - (parseFloat(a.statistics[0].games.rating) || 0));
-
-                filtered.slice(0, 15).forEach(p => drawCard(p.player, p.statistics[0]));
-
-            } catch (err) { msg.classList.add('hidden'); console.error(err); }
-        }
-
-        function drawCard(p, s) {
-            const goals = s.goals.total || 0;
-            const assists = s.goals.assists || 0;
-            const rating = parseFloat(s.games.rating || 0).toFixed(1);
-            const score = Math.round((rating * 10) + (p.age < 22 ? 8 : 0));
-
-            document.getElementById('resultsGrid').innerHTML += `
-                <div class="player-row p-4 flex flex-col md:flex-row items-center gap-4 shadow-lg shadow-black/40">
-                    <img src="${p.photo}" class="w-14 h-14 rounded-lg border border-slate-700 bg-slate-800">
-                    <div class="flex-1 min-w-0 text-center md:text-left">
-                        <h3 class="font-bold text-base text-white truncate uppercase tracking-tight">${p.name}</h3>
-                        <p class="text-[10px] text-cyan-400 font-bold tracking-wider uppercase">${s.team.name} | ${p.age} YAS</p>
-                    </div>
-                    
-                    <div class="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 md:border-l border-slate-700 pt-4 md:pt-0 md:pl-6">
-                        <div class="text-center">
-                            <p class="text-[9px] text-slate-500 font-bold mb-1">GOL</p>
-                            <p class="stat-value">${goals}</p>
-                        </div>
-                        <div class="text-center">
-                            <p class="text-[9px] text-slate-500 font-bold mb-1">AST</p>
-                            <p class="stat-value text-cyan-400">${assists}</p>
-                        </div>
-                        <div class="text-center">
-                            <p class="text-[9px] text-slate-500 font-bold mb-1">FORM</p>
-                            <p class="stat-value text-yellow-500">${rating}</p>
-                        </div>
-                        <div class="text-center bg-cyan-900/20 px-3 py-1 rounded-lg border border-cyan-500/20">
-                            <p class="text-[9px] text-cyan-500 font-bold mb-1">AI</p>
-                            <p class="stat-value text-white">${score}</p>
-                        </div>
-                    </div>
-                </div>`;
+            } catch (err) { 
+                loader.classList.add('hidden'); 
+                alert("Veri çekme hatası! API anahtarını veya bağlantını kontrol et."); 
+            }
         }
     </script>
 </body>
