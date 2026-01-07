@@ -2,191 +2,105 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>PRO-SCOUT V13 | Kararlı Sistem</title>
+    <title>FM Scout AI - Transfer Gözlem Ağı</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root { --neon: #00ff88; --bg: #030508; }
-        body { background: var(--bg); color: #e2e8f0; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
-        
-        /* Sabit Layout */
-        .app-container { display: grid; grid-template-columns: 350px 1fr; gap: 20px; height: calc(100vh - 120px); padding: 0 20px; }
-        
-        /* Saha */
-        .pitch { 
-            background: #080a0f; border: 2px solid #1f2937; position: relative; height: 100%; border-radius: 20px;
-            background-image: radial-gradient(circle, #1a1d23 1.5px, transparent 1.5px); background-size: 40px 40px;
-        }
-
-        .pos-slot {
-            position: absolute; width: 65px; height: 65px; border: 1px solid #1f2937; border-radius: 50%;
-            transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.9); cursor: pointer; transition: 0.2s; z-index: 10;
-        }
-        .pos-slot:hover { border-color: var(--neon); transform: translate(-50%, -50%) scale(1.1); }
-        .slot-active { border-color: var(--neon); background: rgba(0, 255, 136, 0.1); }
-
-        /* Kartlar */
-        .scout-card {
-            background: #0d1117; border: 1px solid #1f2937; padding: 12px; border-radius: 10px; margin-bottom: 10px;
-            cursor: pointer; border-left: 4px solid transparent; transition: 0.2s;
-        }
-        .scout-card:hover { background: #161b22; }
-        .selected { border-left-color: var(--neon) !important; background: #1a2333 !important; }
-
-        .status-fit { color: #00ff88; font-size: 10px; }
-        .status-tired { color: #ffcc00; font-size: 10px; }
-        
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-    </style>
 </head>
-<body class="p-4">
+<body class="bg-slate-900 text-white font-sans">
 
-    <header class="flex justify-between items-center mb-6 bg-[#0d1117] p-5 rounded-xl border border-gray-800 mx-4">
-        <h1 class="text-xl font-black italic text-white">PRO-SCOUT <span class="text-[var(--neon)]">V13</span></h1>
-        <div class="flex gap-2">
-            <button onclick="setPhase('toplu')" id="btn-toplu" class="bg-[var(--neon)] text-black font-bold px-4 py-2 rounded text-[10px] uppercase">Toplu Alan</button>
-            <button onclick="setPhase('topsuz')" id="btn-topsuz" class="bg-gray-800 text-white font-bold px-4 py-2 rounded text-[10px] uppercase">Topsuz Alan</button>
-        </div>
-        <div class="flex gap-2">
-            <input id="manName" type="text" placeholder="Manuel Oyuncu..." class="bg-gray-900 border border-gray-700 text-xs p-2 rounded w-40 text-white outline-none">
-            <button onclick="addManual()" class="bg-white text-black font-bold px-4 rounded text-xs uppercase">Ekle</button>
-            <button onclick="fetchData()" id="fetchBtn" class="bg-blue-600 text-white font-bold px-4 rounded text-xs uppercase">Oyuncu Öner</button>
-        </div>
-    </header>
+    <div class="container mx-auto p-8">
+        <h1 class="text-4xl font-bold text-blue-400 mb-2">FM SCOUT AI</h1>
+        <p class="text-slate-400 mb-8">2027/28 Sezonu Projeksiyon ve Transfer Analiz Motoru</p>
 
-    <div class="app-container">
-        <div class="flex flex-col h-full overflow-hidden">
-            <h3 class="text-[10px] font-bold text-gray-500 mb-3 uppercase tracking-widest">Önerilen Oyuncular</h3>
-            <div id="results" class="flex-1 overflow-y-auto pr-2">
-                <p class="text-xs text-gray-600 italic text-center mt-10">Bağlantı bekleniyor...</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
+                <h2 class="text-xl font-semibold mb-4 border-b border-slate-600 pb-2">Oyuncu Veri Girişi</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-slate-400">Oyuncu Adı</label>
+                        <input id="pName" type="text" class="w-full bg-slate-700 p-2 rounded border border-slate-600 focus:outline-none focus:border-blue-500" placeholder="Örn: Arda Güler">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm text-slate-400">Mevcut Yaş</label>
+                            <input id="pAge" type="number" class="w-full bg-slate-700 p-2 rounded border border-slate-600" value="19">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400">Hedef Sezon (Yıl)</label>
+                            <input id="targetYear" type="number" class="w-full bg-slate-700 p-2 rounded border border-slate-600" value="2028">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm text-slate-400">Mevcut Yetenek (CA)</label>
+                            <input id="pCA" type="number" class="w-full bg-slate-700 p-2 rounded border border-slate-600" value="140">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400">Potansiyel (PA)</label>
+                            <input id="pPA" type="number" class="w-full bg-slate-700 p-2 rounded border border-slate-600" value="185">
+                        </div>
+                    </div>
+                    <button onclick="analyzePlayer()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-200">
+                        GELECEK ANALİZİNİ ÇALIŞTIR
+                    </button>
+                </div>
             </div>
-        </div>
 
-        <div class="flex flex-col h-full">
-            <div class="pitch" id="pitch"></div>
-            <p id="hint" class="text-center text-[11px] text-green-500 mt-2 font-bold opacity-0">OYUNCU SEÇİLDİ: SAHADAKİ MEVKİYE TIKLA</p>
+            <div id="resultPanel" class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700 hidden">
+                <h2 class="text-xl font-semibold mb-4 text-green-400">AI Gözlemci Raporu</h2>
+                <div id="reportContent" class="space-y-4">
+                    </div>
+            </div>
         </div>
     </div>
 
     <script>
-        const positions = {
-            toplu: [ 
-                {pos: "KL", t: 90, l: 50}, {pos: "STP", t: 78, l: 40}, {pos: "STP", t: 78, l: 60},
-                {pos: "SLB", t: 60, l: 12}, {pos: "SĞB", t: 60, l: 88}, {pos: "MO", t: 65, l: 50},
-                {pos: "MO", t: 45, l: 30}, {pos: "MO", t: 45, l: 70}, {pos: "SLK", t: 25, l: 15},
-                {pos: "SĞK", t: 25, l: 85}, {pos: "SNT", t: 15, l: 50}
-            ],
-            topsuz: [
-                {pos: "KL", t: 92, l: 50}, {pos: "STP", t: 82, l: 45}, {pos: "STP", t: 82, l: 55},
-                {pos: "SLB", t: 80, l: 25}, {pos: "SĞB", t: 80, l: 75}, {pos: "MO", t: 72, l: 50},
-                {pos: "MO", t: 68, l: 38}, {pos: "MO", t: 68, l: 62}, {pos: "SLK", t: 55, l: 30},
-                {pos: "SĞK", t: 55, l: 70}, {pos: "SNT", t: 45, l: 50}
-            ]
-        };
-
-        let squad = Array(11).fill(null);
-        let currentPhase = 'toplu';
-        let selectedPlayer = null;
-
-        async function fetchData() {
-            const resDiv = document.getElementById('results');
-            resDiv.innerHTML = '<p class="text-xs text-center animate-pulse text-blue-500">Veri aranıyor...</p>';
+        function analyzePlayer() {
+            const name = document.getElementById('pName').value;
+            const age = parseInt(document.getElementById('pAge').value);
+            const ca = parseInt(document.getElementById('pCA').value);
+            const pa = parseInt(document.getElementById('pPA').value);
+            const targetYear = parseInt(document.getElementById('targetYear').value);
             
-            try {
-                const sparql = `SELECT DISTINCT ?name ?team ?desc WHERE { ?player a <http://dbpedia.org/ontology/SoccerPlayer> ; <http://xmlns.com/foaf/0.1/name> ?name ; <http://dbpedia.org/ontology/team> ?t ; <http://dbpedia.org/ontology/abstract> ?desc . ?t <http://xmlns.com/foaf/0.1/name> ?team . FILTER (LANG(?desc) = "en") } LIMIT 50`;
-                const response = await fetch("https://dbpedia.org/sparql?query=" + encodeURIComponent(sparql) + "&format=json");
-                const data = await response.json();
-                renderCards(data.results.bindings);
-            } catch (e) {
-                // Yedek Veri (API çökerse burası çalışır)
-                const backup = [
-                    {name:{value:"Viktor Gyökeres"}, team:{value:"Sporting CP"}, desc:{value:"striker"}},
-                    {name:{value:"Lamine Yamal"}, team:{value:"FC Barcelona"}, desc:{value:"winger"}},
-                    {name:{value:"Kenan Yıldız"}, team:{value:"Juventus"}, desc:{value:"forward"}},
-                    {name:{value:"Arda Güler"}, team:{value:"Real Madrid"}, desc:{value:"midfielder"}}
-                ];
-                renderCards(backup);
-            }
+            const yearsPassed = targetYear - 2024;
+            const futureAge = age + yearsPassed;
+            
+            // FM Gelişim Algoritması Simülasyonu
+            let growthPotential = pa - ca;
+            let growthModifier = 0;
+
+            if (futureAge <= 23) growthModifier = 0.85; // Genç gelişimi
+            else if (futureAge <= 27) growthModifier = 0.4; // Olgunlaşma
+            else growthModifier = -0.1; // Yaşlanma etkisi
+
+            let projectedCA = ca + (yearsPassed * (growthPotential / 5) * growthModifier);
+            projectedCA = Math.min(projectedCA, pa).toFixed(0);
+
+            // Raporu Oluştur
+            document.getElementById('resultPanel').classList.remove('hidden');
+            document.getElementById('reportContent').innerHTML = `
+                <div class="bg-slate-900 p-4 rounded border-l-4 border-blue-500">
+                    <p class="text-lg font-bold">${name} - ${targetYear} Projeksiyonu</p>
+                    <p class="text-sm text-slate-400">Tahmini Yaş: ${futureAge}</p>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-center">
+                    <div class="bg-slate-700 p-3 rounded">
+                        <p class="text-xs text-slate-400 uppercase">Mevcut CA</p>
+                        <p class="text-2xl font-bold">${ca}</p>
+                    </div>
+                    <div class="bg-slate-700 p-3 rounded">
+                        <p class="text-xs text-slate-400 uppercase">${targetYear} CA (Tahmin)</p>
+                        <p class="text-2xl font-bold text-green-400">${projectedCA}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <p class="text-sm font-semibold mb-2 text-blue-300">AI Yorumu:</p>
+                    <p class="text-sm text-slate-300 italic">
+                        "${name}, ${targetYear} yılına kadar potansiyelinin %${((projectedCA/pa)*100).toFixed(0)} kısmına ulaşacak. 
+                        Özellikle fiziksel gelişiminin bu dönemde zirve yapması bekleniyor. Transfer edilmesi stratejik bir yatırımdır."
+                    </p>
+                </div>
+            `;
         }
-
-        function renderCards(players) {
-            const resDiv = document.getElementById('results');
-            resDiv.innerHTML = "";
-            let seen = new Set();
-
-            players.forEach(p => {
-                const name = p.name.value;
-                const team = p.team.value;
-                const desc = p.desc.value.toLowerCase();
-                
-                if(seen.has(name) || name.length < 3) return;
-                seen.add(name);
-
-                let mevki = "MO";
-                if(desc.includes("goalkeeper")) mevki = "KL";
-                else if(desc.includes("defender")) mevki = "STP";
-                else if(desc.includes("striker") || desc.includes("forward")) mevki = "SNT";
-                else if(desc.includes("winger")) mevki = "KANAT";
-
-                const card = document.createElement('div');
-                card.className = "scout-card";
-                card.innerHTML = `
-                    <div class="flex justify-between font-bold text-xs"><span>${name}</span><span class="text-blue-400">${mevki}</span></div>
-                    <div class="text-[9px] text-gray-500 mt-1 uppercase">${team}</div>
-                `;
-                card.onclick = () => {
-                    document.querySelectorAll('.scout-card').forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                    selectedPlayer = { name, mevki };
-                    document.getElementById('hint').style.opacity = "1";
-                };
-                resDiv.appendChild(card);
-            });
-        }
-
-        function renderPitch() {
-            const pitch = document.getElementById('pitch');
-            pitch.innerHTML = "";
-            positions[currentPhase].forEach((slot, i) => {
-                const p = squad[i];
-                const div = document.createElement('div');
-                div.className = `pos-slot ${p ? 'slot-active' : ''}`;
-                div.style.top = slot.t + "%"; div.style.left = slot.l + "%";
-                div.innerHTML = `<span class="text-[8px] text-gray-500 font-bold">${slot.pos}</span>
-                                 <span class="text-[9px] font-bold text-white uppercase">${p ? p.name.split(' ')[0] : ''}</span>`;
-                div.onclick = () => {
-                    if(selectedPlayer) {
-                        squad[i] = selectedPlayer;
-                        selectedPlayer = null;
-                        document.getElementById('hint').style.opacity = "0";
-                        renderPitch();
-                    } else if(squad[i]) {
-                        squad[i] = null;
-                        renderPitch();
-                    }
-                };
-                pitch.appendChild(div);
-            });
-        }
-
-        function setPhase(p) {
-            currentPhase = p;
-            document.getElementById('btn-toplu').className = p === 'toplu' ? 'bg-[var(--neon)] text-black font-bold px-4 py-2 rounded text-[10px]' : 'bg-gray-800 text-white font-bold px-4 py-2 rounded text-[10px]';
-            document.getElementById('btn-topsuz').className = p === 'topsuz' ? 'bg-[var(--neon)] text-black font-bold px-4 py-2 rounded text-[10px]' : 'bg-gray-800 text-white font-bold px-4 py-2 rounded text-[10px]';
-            renderPitch();
-        }
-
-        function addManual() {
-            const name = document.getElementById('manName').value;
-            if(name) {
-                selectedPlayer = { name, mevki: "MAN" };
-                document.getElementById('hint').style.opacity = "1";
-                document.getElementById('manName').value = "";
-            }
-        }
-
-        renderPitch();
     </script>
 </body>
 </html>
