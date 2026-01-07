@@ -33,15 +33,28 @@
                 
                 <div class="space-y-4">
                     <label class="block text-[10px] text-slate-500 font-bold uppercase">Hedef Lig</label>
-                    <select id="leagueID" class="w-full bg-slate-800/50 p-3 rounded-xl border border-slate-700 text-sm focus:border-blue-500 outline-none transition-all">
-                        <option value="203">🇹🇷 Süper Lig</option>
-                        <option value="39">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</option>
-                        <option value="140">🇪🇸 La Liga</option>
-                        <option value="71">🇧🇷 Serie A (Brezilya)</option>
-                        <option value="94">🇵🇹 Primeira Liga</option>
-                        <option value="88">🇳🇱 Eredivisie</option>
-                    </select>
-
+<select id="leagueID" class="w-full bg-slate-800/50 p-3 rounded-xl border border-slate-700 text-sm focus:border-blue-500 outline-none transition-all">
+    <optgroup label="Popüler Ligler">
+        <option value="203">Türkiye: Süper Lig</option>
+        <option value="39">İngiltere: Premier League</option>
+        <option value="140">İspanya: La Liga</option>
+        <option value="78">Almanya: Bundesliga</option>
+        <option value="135">İtalya: Serie A</option>
+        <option value="61">Fransa: Ligue 1</option>
+    </optgroup>
+    <optgroup label="Yetenek Havuzları">
+        <option value="71">Brezilya: Serie A</option>
+        <option value="128">Arjantin: Liga Profesional</option>
+        <option value="94">Portekiz: Primeira Liga</option>
+        <option value="88">Hollanda: Eredivisie</option>
+        <option value="144">Belçika: Pro League</option>
+        <option value="40">İngiltere: Championship</option>
+    </optgroup>
+    <optgroup label="Diğer">
+        <option value="253">ABD: MLS</option>
+        <option value="307">Suudi Arabistan: Pro League</option>
+    </optgroup>
+</select>
                     <label class="block text-[10px] text-slate-500 font-bold uppercase">Rol Tanımı</label>
                     <select id="position" class="w-full bg-slate-800/50 p-3 rounded-xl border border-slate-700 text-sm focus:border-blue-500 outline-none transition-all">
                         <option value="Goalkeeper">Modern Kaleci</option>
