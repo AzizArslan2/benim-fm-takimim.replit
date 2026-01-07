@@ -2,124 +2,99 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>FM Scout AI - Tactical Global Master</title>
+    <title>FM Scout AI - Tactical v5.0</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:ital,wght@0,300;0,400;0,700;1,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #3b82f6; --bg: #020617; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #f8fafc; overflow-x: hidden; }
-        .cyber-font { font-family: 'Orbitron', sans-serif; }
-        
-        /* Saha Tasarımı */
-        .pitch { 
-            background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
-            border: 4px solid #334155; position: relative; height: 600px;
-            border-radius: 40px; overflow: hidden; box-shadow: 0 0 50px rgba(59, 130, 246, 0.1);
+        :root { --neon-blue: #00f2ff; --neon-green: #39ff14; }
+        body { 
+            font-family: 'Rajdhani', sans-serif; 
+            background: #050505; 
+            color: #e0e0e0; 
+            letter-spacing: 0.5px;
         }
-        .pitch::before { content: ""; position: absolute; top: 50%; width: 100%; height: 2px; background: rgba(255,255,255,0.05); }
-        .pitch::after { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140px; height: 140px; border: 2px solid rgba(255,255,255,0.05); border-radius: 50%; }
-
-        /* Mevki Butonları */
+        h1, .score-font { font-family: 'Syncopate', sans-serif; text-transform: uppercase; }
+        
+        /* Saha ve Mevki Tasarımı */
+        .pitch { 
+            background: linear-gradient(135deg, #0a0f1e 0%, #020617 100%);
+            border: 2px solid #1e293b; position: relative; height: 580px;
+            border-radius: 30px; box-shadow: inset 0 0 100px rgba(0, 242, 255, 0.05);
+        }
         .pos-btn { 
-            position: absolute; width: 42px; height: 42px; transform: translate(-50%, -50%);
-            background: #0f172a; border: 2px solid #3b82f6; border-radius: 12px;
-            color: white; font-size: 9px; font-weight: 900; display: flex; align-items: center; 
-            justify-center; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            position: absolute; width: 44px; height: 30px; transform: translate(-50%, -50%);
+            background: rgba(15, 23, 42, 0.8); border: 1px solid var(--neon-blue);
+            color: var(--neon-blue); font-size: 10px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
         }
         .pos-btn:hover, .pos-btn.active { 
-            background: #3b82f6; color: white; scale: 1.2; box-shadow: 0 0 20px #3b82f6; border-color: white;
+            background: var(--neon-blue); color: black; box-shadow: 0 0 20px var(--neon-blue);
         }
 
-        /* Kart Efektleri */
-        .glass-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(15px); border: 1px solid rgba(59, 130, 246, 0.2); }
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        /* Kart Stili */
+        .scout-card { 
+            background: rgba(16, 16, 16, 0.8); 
+            border-left: 4px solid #1e293b;
+            transition: 0.3s;
+        }
+        .scout-card:hover { border-left-color: var(--neon-blue); background: rgba(20, 20, 20, 1); }
+        
+        .stat-box { background: rgba(255, 255, 255, 0.03); border: 1px border rgba(255, 255, 255, 0.05); }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-6">
 
-    <div class="max-w-[1600px] mx-auto">
-        <header class="flex justify-between items-center mb-10 border-b border-slate-800 pb-6">
-            <div>
-                <h1 class="cyber-font text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400">FM SCOUT AI</h1>
-                <p class="text-slate-500 font-bold italic tracking-widest text-xs mt-1 uppercase">Global Transfer Intelligence System</p>
+    <div class="max-w-[1500px] mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
+            <div class="text-center md:text-left">
+                <h1 class="text-4xl font-black tracking-tighter text-white">AI <span class="text-cyan-400">Scout</span> Alpha</h1>
+                <p class="text-slate-500 font-medium tracking-[0.4em] text-[10px]">Neural Scouting & Performance Analytics</p>
             </div>
-            <div class="text-right">
-                <div class="text-[10px] text-blue-400 font-mono">STATUS: SCANNING GLOBAL DATABASE</div>
-                <div class="text-xs font-bold text-slate-300">JANUARY 2026 UPDATE</div>
+            
+            <div class="flex gap-4 glass p-4 rounded-2xl bg-slate-900/40 border border-slate-800">
+                <div class="space-y-1">
+                    <label class="block text-[10px] uppercase font-bold text-slate-500">Global Lig</label>
+                    <select id="leagueID" class="bg-black border border-slate-700 p-2 rounded text-xs outline-none focus:border-cyan-400 w-48">
+                        <option value="203">🇹🇷 Süper Lig</option>
+                        <option value="39">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</option>
+                        <option value="140">🇪🇸 La Liga</option>
+                        <option value="71">🇧🇷 Serie A</option>
+                        <option value="128">🇦🇷 Arjantin</option>
+                        <option value="94">🇵🇹 Portekiz</option>
+                        <option value="88">🇳🇱 Hollanda</option>
+                        <option value="40">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Championship</option>
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-[10px] uppercase font-bold text-slate-500">Yaş Limiti</label>
+                    <input id="ageMax" type="number" value="23" class="bg-black border border-slate-700 p-2 rounded text-xs w-16 outline-none focus:border-cyan-400">
+                </div>
+                <button onclick="fetchData()" class="bg-cyan-600 hover:bg-cyan-500 text-black px-6 rounded font-black text-xs transition-all self-end h-9">TARAMAYI BAŞLAT</button>
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <div class="lg:col-span-5 space-y-6">
-                <div class="pitch" id="tacticalPitch">
+            <div class="lg:col-span-5">
+                <div class="pitch">
                     <button onclick="selectPos('Goalkeeper', 'GK', this)" class="pos-btn" style="top: 92%; left: 50%;">GK</button>
-                    <button onclick="selectPos('Defender', 'DC', this)" class="pos-btn" style="top: 78%; left: 40%;">LDC</button>
-                    <button onclick="selectPos('Defender', 'DC', this)" class="pos-btn" style="top: 78%; left: 60%;">RDC</button>
-                    <button onclick="selectPos('Defender', 'Defender', this)" class="pos-btn" style="top: 75%; left: 15%;">WBL</button>
-                    <button onclick="selectPos('Defender', 'Defender', this)" class="pos-btn" style="top: 75%; left: 85%;">WBR</button>
+                    <button onclick="selectPos('Defender', 'DC', this)" class="pos-btn" style="top: 78%; left: 35%;">LDC</button>
+                    <button onclick="selectPos('Defender', 'DC', this)" class="pos-btn" style="top: 78%; left: 65%;">RDC</button>
+                    <button onclick="selectPos('Midfielder', 'DM', this)" class="pos-btn" style="top: 60%; left: 50%;">DM</button>
+                    <button onclick="selectPos('Midfielder', 'MCL', this)" class="pos-btn" style="top: 48%; left: 30%;">MCL</button>
+                    <button onclick="selectPos('Midfielder', 'MCR', this)" class="pos-btn" style="top: 48%; left: 70%;">MCR</button>
                     
-                    <button onclick="selectPos('Midfielder', 'Midfielder', this)" class="pos-btn" style="top: 60%; left: 50%;">DM</button>
-                    <button onclick="selectPos('Midfielder', 'Midfielder', this)" class="pos-btn" style="top: 48%; left: 35%;">MCL</button>
-                    <button onclick="selectPos('Midfielder', 'Midfielder', this)" class="pos-btn" style="top: 48%; left: 65%;">MCR</button>
-                    <button onclick="selectPos('Midfielder', 'Midfielder', this)" class="pos-btn" style="top: 35%; left: 50%;">AMC</button>
-                    
-                    <button onclick="selectPos('Attacker', 'Attacker', this)" class="pos-btn" style="top: 25%; left: 20%;">AML</button>
-                    <button onclick="selectPos('Attacker', 'Attacker', this)" class="pos-btn" style="top: 25%; left: 80%;">AMR</button>
-                    <button onclick="selectPos('Attacker', 'Attacker', this)" class="pos-btn active" style="top: 12%; left: 50%;">ST</button>
+                    <button onclick="selectPos('Attacker', 'LW', this)" class="pos-btn" style="top: 25%; left: 20%;">LW</button>
+                    <button onclick="selectPos('Attacker', 'RW', this)" class="pos-btn" style="top: 25%; left: 80%;">RW</button>
+                    <button onclick="selectPos('Attacker', 'ST', this)" class="pos-btn active" style="top: 12%; left: 50%;">ST</button>
                 </div>
             </div>
 
-            <div class="lg:col-span-7 flex flex-col gap-6">
-                <div class="glass-card p-8 rounded-[2rem] grid grid-cols-2 md:grid-cols-3 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest">Global Lig Seçimi</label>
-                        <select id="leagueID" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-sm outline-none focus:border-blue-500">
-                            <optgroup label="Majör Ligler">
-                                <option value="203">Türkiye: Süper Lig</option>
-                                <option value="39">İngiltere: Premier League</option>
-                                <option value="140">İspanya: La Liga</option>
-                                <option value="78">Almanya: Bundesliga</option>
-                                <option value="135">İtalya: Serie A</option>
-                                <option value="61">Fransa: Ligue 1</option>
-                            </optgroup>
-                            <optgroup label="Yetenek Fabrikaları">
-                                <option value="71">Brezilya: Serie A</option>
-                                <option value="128">Arjantin: Liga Profesional</option>
-                                <option value="94">Portekiz: Primeira Liga</option>
-                                <option value="88">Hollanda: Eredivisie</option>
-                                <option value="144">Belçika: Pro League</option>
-                                <option value="106">Polonya: Ekstraklasa</option>
-                                <option value="210">Hırvatistan: HNL</option>
-                                <option value="119">Danimarka: Superliga</option>
-                            </optgroup>
-                            <optgroup label="Alternatif Piyasalar">
-                                <option value="253">ABD: MLS</option>
-                                <option value="307">Suudi Arabistan: Pro League</option>
-                                <option value="98">Japonya: J1 League</option>
-                                <option value="262">Meksika: Liga MX</option>
-                                <option value="40">İngiltere: Championship</option>
-                                <option value="207">İsviçre: Super League</option>
-                                <option value="179">İskoçya: Premiership</option>
-                                <option value="134">Yunanistan: Super League</option>
-                            </optgroup>
-                        </select>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest">Yaş Tavanı: <span id="ageVal">23</span></label>
-                        <input id="ageMax" type="range" min="15" max="40" value="23" class="w-full accent-blue-500" oninput="document.getElementById('ageVal').innerText=this.value">
-                    </div>
-
-                    <div class="flex items-end">
-                        <button onclick="getPlayers()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-black text-xs uppercase tracking-tighter transition-all shadow-lg shadow-blue-500/20">TARAMAYI BAŞLAT</button>
-                    </div>
-                </div>
-
-                <div id="loader" class="hidden text-center py-20"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div></div>
-                <div id="results" class="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto custom-scroll pr-2 max-h-[600px]">
+            <div class="lg:col-span-7 h-[600px] overflow-y-auto pr-4 custom-scroll">
+                <div id="loader" class="hidden text-center py-20 font-bold text-cyan-400 animate-pulse tracking-widest">CONNECTING TO NEURAL NETWORK...</div>
+                <div id="results" class="grid grid-cols-1 gap-4">
                     </div>
             </div>
         </div>
@@ -127,17 +102,17 @@
 
     <script>
         const API_KEY = 'bbf2c8b42d6e26a65670f5863d75aab5';
-        let selectedPos = 'Attacker';
+        let activePos = 'ST'; 
 
         function selectPos(type, short, btn) {
-            selectedPos = type;
+            activePos = short;
             document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         }
 
-        async function getPlayers() {
+        async function fetchData() {
             const league = document.getElementById('leagueID').value;
-            const ageMax = document.getElementById('ageMax').value;
+            const ageLimit = document.getElementById('ageMax').value;
             const grid = document.getElementById('results');
             const loader = document.getElementById('loader');
 
@@ -151,46 +126,71 @@
                 });
 
                 loader.classList.add('hidden');
-                res.data.response.filter(p => p.statistics[0].games.position === selectedPos && p.player.age <= ageMax).slice(0, 12).forEach(p => {
-                    renderCard(p.player, p.statistics[0]);
+                
+                // --- AKILLI FİLTRELEME MANTIĞI ---
+                const filtered = res.data.response.filter(p => {
+                    const stats = p.statistics[0];
+                    const age = p.player.age;
+                    const pos = stats.games.position;
+
+                    // Mevkiye göre derin analiz
+                    if (age > ageLimit) return false;
+                    
+                    if (activePos === 'LW' || activePos === 'RW') {
+                        // Kanat oyuncusu ise Attacker olmalı ve tercihen çok asist veya orta yapmalı
+                        return pos === 'Attacker' || pos === 'Midfielder';
+                    }
+                    if (activePos === 'ST') {
+                        // Forvet ise gol sayısı veya ceza sahası etkinliği yüksek olmalı
+                        return pos === 'Attacker';
+                    }
+                    return pos.includes(stats.games.position);
                 });
-            } catch (err) { loader.classList.add('hidden'); alert('API Hatası!'); }
+
+                filtered.slice(0, 15).forEach(p => renderPlayerCard(p.player, p.statistics[0]));
+
+            } catch (err) { loader.classList.add('hidden'); console.error(err); }
         }
 
-        function renderCard(p, s) {
+        function renderPlayerCard(p, s) {
+            const g = s.goals.total || 0;
+            const a = s.goals.assists || 0;
             const rating = parseFloat(s.games.rating || 0).toFixed(1);
-            const score = Math.round((rating * 10) + (p.age < 21 ? 15 : 0));
-            
+            const fmScore = Math.round((rating * 10) + (p.age < 22 ? 10 : 0));
+
             document.getElementById('results').innerHTML += `
-                <div class="glass-card p-6 rounded-[2rem] hover:border-blue-500 transition-all group">
-                    <div class="flex justify-between items-start mb-4">
-                        <img src="${p.photo}" class="w-16 h-16 rounded-2xl ring-2 ring-slate-800 bg-slate-800">
-                        <div class="text-right">
-                            <span class="cyber-font text-3xl font-black ${score > 80 ? 'text-green-400' : 'text-blue-500'}">${score}</span>
-                            <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest">AI FM Score</p>
-                        </div>
-                    </div>
-                    <h3 class="font-bold text-lg text-white truncate">${p.name}</h3>
-                    <p class="text-xs text-blue-400 font-medium mb-4">${s.team.name} | ${p.age} Yaş</p>
-                    
-                    <div class="grid grid-cols-3 gap-2 text-center">
-                        <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-800">
-                            <p class="text-[8px] text-slate-500 font-bold mb-1">MAÇ</p>
-                            <p class="text-xs font-bold">${s.games.appearences}</p>
-                        </div>
-                        <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-800">
-                            <p class="text-[8px] text-slate-500 font-bold mb-1">G/A</p>
-                            <p class="text-xs font-bold">${s.goals.total || 0}/${s.goals.assists || 0}</p>
-                        </div>
-                        <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-800">
-                            <p class="text-[8px] text-slate-500 font-bold mb-1">FORM</p>
-                            <p class="text-xs font-bold text-yellow-500">${rating}</p>
+                <div class="scout-card p-5 rounded-r-2xl flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-6 w-full md:w-1/3">
+                        <img src="${p.photo}" class="w-16 h-16 rounded-full bg-slate-800 border-2 border-slate-700">
+                        <div>
+                            <h3 class="font-bold text-lg text-white leading-tight uppercase">${p.name}</h3>
+                            <p class="text-[10px] text-cyan-500 font-bold">${s.team.name} | ${p.age} YAŞ</p>
                         </div>
                     </div>
 
-                    <div class="mt-4 pt-4 border-t border-slate-800/50 flex justify-between items-center">
-                        <div class="text-[10px] font-bold text-slate-500 italic uppercase">Yatırım Değeri: <span class="${p.age < 22 ? 'text-green-400' : 'text-slate-300'}">${p.age < 22 ? 'KRİTİK' : 'STABİL'}</span></div>
-                        <div class="w-2 h-2 rounded-full ${rating > 7 ? 'bg-green-500 animate-pulse' : 'bg-slate-600'}"></div>
+                    <div class="grid grid-cols-4 gap-4 flex-1 w-full">
+                        <div class="stat-box p-2 text-center rounded">
+                            <p class="text-[8px] text-slate-500 font-bold">GOL</p>
+                            <p class="text-xl font-bold text-white">${g}</p>
+                        </div>
+                        <div class="stat-box p-2 text-center rounded">
+                            <p class="text-[8px] text-slate-500 font-bold">ASİST</p>
+                            <p class="text-xl font-bold text-cyan-400">${a}</p>
+                        </div>
+                        <div class="stat-box p-2 text-center rounded">
+                            <p class="text-[8px] text-slate-500 font-bold">FORM</p>
+                            <p class="text-xl font-bold text-yellow-500">${rating}</p>
+                        </div>
+                        <div class="stat-box p-2 text-center rounded border border-cyan-900/30">
+                            <p class="text-[8px] text-cyan-500 font-bold uppercase">AI Skor</p>
+                            <p class="text-xl font-black text-white score-font">${fmScore}</p>
+                        </div>
+                    </div>
+
+                    <div class="text-right w-full md:w-auto">
+                        <div class="text-[9px] font-bold ${p.age < 22 ? 'text-green-500' : 'text-slate-500'} uppercase">
+                            ${p.age < 22 ? '● WONDERKID' : '● STABIL'}
+                        </div>
                     </div>
                 </div>`;
         }
