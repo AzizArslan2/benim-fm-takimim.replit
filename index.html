@@ -2,102 +2,127 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>FM Scout AI - Transfer Gözlem Ağı</title>
+    <title>FM Scout AI - Live Data Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
-<body class="bg-slate-900 text-white font-sans">
+<body class="bg-black text-gray-100 font-sans">
 
-    <div class="container mx-auto p-8">
-        <h1 class="text-4xl font-bold text-blue-400 mb-2">FM SCOUT AI</h1>
-        <p class="text-slate-400 mb-8">2027/28 Sezonu Projeksiyon ve Transfer Analiz Motoru</p>
+    <header class="bg-slate-900 border-b border-blue-600 p-6 flex justify-between items-center">
+        <h1 class="text-2xl font-black text-blue-500 tracking-tighter uppercase italic">Scout AI v2.0</h1>
+        <div id="status" class="text-xs text-green-500 font-mono">API BAĞLANTISI HAZIR</div>
+    </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
-                <h2 class="text-xl font-semibold mb-4 border-b border-slate-600 pb-2">Oyuncu Veri Girişi</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm text-slate-400">Oyuncu Adı</label>
-                        <input id="pName" type="text" class="w-full bg-slate-700 p-2 rounded border border-slate-600 focus:outline-none focus:border-blue-500" placeholder="Örn: Arda Güler">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm text-slate-400">Mevcut Yaş</label>
-                            <input id="pAge" type="number" class="w-full bg-slate-700 p-2 rounded border border-slate-600" value="19">
-                        </div>
-                        <div>
-                            <label class="block text-sm text-slate-400">Hedef Sezon (Yıl)</label>
-                            <input id="targetYear" type="number" class="w-full bg-slate-700 p-2 rounded border border-slate-600" value="2028">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm text-slate-400">Mevcut Yetenek (CA)</label>
-                            <input id="pCA" type="number" class="w-full bg-slate-700 p-2 rounded border border-slate-600" value="140">
-                        </div>
-                        <div>
-                            <label class="block text-sm text-slate-400">Potansiyel (PA)</label>
-                            <input id="pPA" type="number" class="w-full bg-slate-700 p-2 rounded border border-slate-600" value="185">
-                        </div>
-                    </div>
-                    <button onclick="analyzePlayer()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-200">
-                        GELECEK ANALİZİNİ ÇALIŞTIR
-                    </button>
+    <div class="container mx-auto p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <div class="lg:col-span-1 space-y-4">
+            <div class="bg-slate-900 p-5 rounded-xl border border-slate-800">
+                <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Hedef Lig</label>
+                <select id="leagueID" class="w-full bg-slate-800 p-3 rounded-lg border border-slate-700 text-sm">
+                    <option value="203">Türkiye Süper Lig</option>
+                    <option value="39">Premier League (İngiltere)</option>
+                    <option value="140">La Liga (İspanya)</option>
+                    <option value="61">Ligue 1 (Fransa)</option>
+                </select>
+
+                <label class="block text-xs font-bold text-slate-500 mt-4 mb-2 uppercase">Mevki</label>
+                <select id="position" class="w-full bg-slate-800 p-3 rounded-lg border border-slate-700 text-sm">
+                    <option value="Goalkeeper">Kaleci</option>
+                    <option value="Defender">Defans</option>
+                    <option value="Midfielder">Orta Saha</option>
+                    <option value="Attacker">Forvet</option>
+                </select>
+
+                <button onclick="getLiveScoutData()" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-900/40">
+                    CANLI VERİLERİ ÇEK VE ANALİZ ET
+                </button>
+            </div>
+        </div>
+
+        <div class="lg:col-span-3">
+            <div id="loading" class="hidden text-center py-20">
+                <div class="animate-bounce text-blue-500 font-bold text-xl uppercase italic">Veri Tabanı Analiz Ediliyor...</div>
+            </div>
+            <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 </div>
-            </div>
-
-            <div id="resultPanel" class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700 hidden">
-                <h2 class="text-xl font-semibold mb-4 text-green-400">AI Gözlemci Raporu</h2>
-                <div id="reportContent" class="space-y-4">
-                    </div>
-            </div>
         </div>
     </div>
 
     <script>
-        function analyzePlayer() {
-            const name = document.getElementById('pName').value;
-            const age = parseInt(document.getElementById('pAge').value);
-            const ca = parseInt(document.getElementById('pCA').value);
-            const pa = parseInt(document.getElementById('pPA').value);
-            const targetYear = parseInt(document.getElementById('targetYear').value);
-            
-            const yearsPassed = targetYear - 2024;
-            const futureAge = age + yearsPassed;
-            
-            // FM Gelişim Algoritması Simülasyonu
-            let growthPotential = pa - ca;
-            let growthModifier = 0;
+        const API_KEY = 'bbf2c8b42d6e26a65670f5863d75aab5'; // Buraya kendi anahtarını yapıştır
+        const HOST = 'v3.football.api-sports.io';
 
-            if (futureAge <= 23) growthModifier = 0.85; // Genç gelişimi
-            else if (futureAge <= 27) growthModifier = 0.4; // Olgunlaşma
-            else growthModifier = -0.1; // Yaşlanma etkisi
+        async function getLiveScoutData() {
+            const league = document.getElementById('leagueID').value;
+            const pos = document.getElementById('position').value;
+            const grid = document.getElementById('resultsGrid');
+            const loader = document.getElementById('loading');
 
-            let projectedCA = ca + (yearsPassed * (growthPotential / 5) * growthModifier);
-            projectedCA = Math.min(projectedCA, pa).toFixed(0);
+            grid.innerHTML = '';
+            loader.classList.remove('hidden');
 
-            // Raporu Oluştur
-            document.getElementById('resultPanel').classList.remove('hidden');
-            document.getElementById('reportContent').innerHTML = `
-                <div class="bg-slate-900 p-4 rounded border-l-4 border-blue-500">
-                    <p class="text-lg font-bold">${name} - ${targetYear} Projeksiyonu</p>
-                    <p class="text-sm text-slate-400">Tahmini Yaş: ${futureAge}</p>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-center">
-                    <div class="bg-slate-700 p-3 rounded">
-                        <p class="text-xs text-slate-400 uppercase">Mevcut CA</p>
-                        <p class="text-2xl font-bold">${ca}</p>
+            try {
+                // Oyuncuları çekmek için API sorgusu
+                const response = await axios.get(`https://${HOST}/players`, {
+                    params: { league: league, season: 2024 },
+                    headers: { 'x-apisports-key': API_KEY }
+                });
+
+                const players = response.data.response;
+                loader.classList.add('hidden');
+
+                // Mevki bazlı filtrele ve analiz et
+                players.filter(p => p.statistics[0].games.position === pos).slice(0, 12).forEach(p => {
+                    const analysis = runAIAnalysis(p.player);
+                    renderCard(p.player, analysis, p.statistics[0]);
+                });
+
+            } catch (error) {
+                console.error("Hata:", error);
+                alert("API Hatası! Anahtarını kontrol et.");
+                loader.classList.add('hidden');
+            }
+        }
+
+        // FM Projeksiyon Mantığı
+        function runAIAnalysis(player) {
+            const age = player.age;
+            let potentialGrade = "";
+            let growthPath = "";
+
+            if (age < 21) {
+                potentialGrade = "ELITE WONDERKID";
+                growthPath = "2027/28 Sezonunda piyasa değerini 3 katına çıkarabilir.";
+            } else if (age < 26) {
+                potentialGrade = "PEAK TARGET";
+                growthPath = "Kariyerinin zirvesinde, hemen ilk 11'e entegre edilebilir.";
+            } else {
+                potentialGrade = "EXPERIENCED LEADER";
+                growthPath = "Gelişim sınırlı ancak tecrübesiyle takıma liderlik eder.";
+            }
+
+            return { grade: potentialGrade, path: growthPath };
+        }
+
+        function renderCard(player, ai, stats) {
+            const grid = document.getElementById('resultsGrid');
+            grid.innerHTML += `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 hover:scale-105 transition-transform">
+                    <div class="flex items-center gap-4 mb-4">
+                        <img src="${player.photo}" class="w-16 h-16 rounded-full border-2 border-blue-500 shadow-lg shadow-blue-500/20">
+                        <div>
+                            <h3 class="font-bold text-white leading-none">${player.name}</h3>
+                            <span class="text-[10px] text-blue-400 font-mono">${ai.grade}</span>
+                        </div>
                     </div>
-                    <div class="bg-slate-700 p-3 rounded">
-                        <p class="text-xs text-slate-400 uppercase">${targetYear} CA (Tahmin)</p>
-                        <p class="text-2xl font-bold text-green-400">${projectedCA}</p>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between"><span class="text-slate-500">Yaş:</span><span>${player.age}</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Takım:</span><span>${stats.team.name}</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Ülke:</span><span>${player.nationality}</span></div>
                     </div>
-                </div>
-                <div class="mt-4">
-                    <p class="text-sm font-semibold mb-2 text-blue-300">AI Yorumu:</p>
-                    <p class="text-sm text-slate-300 italic">
-                        "${name}, ${targetYear} yılına kadar potansiyelinin %${((projectedCA/pa)*100).toFixed(0)} kısmına ulaşacak. 
-                        Özellikle fiziksel gelişiminin bu dönemde zirve yapması bekleniyor. Transfer edilmesi stratejik bir yatırımdır."
-                    </p>
+                    <div class="mt-4 p-3 bg-black rounded-lg border-l-2 border-green-500">
+                        <p class="text-[10px] text-slate-400 italic font-medium">AI PROJEKSİYONU: ${ai.path}</p>
+                    </div>
                 </div>
             `;
         }
