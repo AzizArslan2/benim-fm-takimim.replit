@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FM Scout AI v3.0 - Pro Scouting Network</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>FM Scout AI - Professional Scouting Network</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; background-color: #020617; }
         .cyber-font { font-family: 'Orbitron', sans-serif; }
-        .glass-panel { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(51, 65, 85, 0.5); }
+        .glass-panel { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(51, 65, 85, 0.4); }
+        .player-card:hover { border-color: #3b82f6; transform: translateY(-4px); transition: all 0.3s ease; }
     </style>
 </head>
-<body class="bg-[#020617] text-slate-100 min-h-screen">
+<body class="text-slate-100 min-h-screen">
 
     <header class="p-6 border-b border-blue-900/30 glass-panel sticky top-0 z-50 flex justify-between items-center">
         <div class="flex items-center gap-4">
             <div class="h-10 w-1 bg-blue-500 rounded-full animate-pulse"></div>
-            <h1 class="cyber-font text-xl font-black tracking-widest text-blue-400">FM SCOUT AI <span class="text-white text-xs opacity-50">PRO EDITION</span></h1>
+            <h1 class="cyber-font text-xl font-black tracking-widest text-blue-400">FM SCOUT AI <span class="text-white text-[10px] opacity-40">MASTER v3.0</span></h1>
         </div>
-        <div class="flex gap-4 text-[10px] font-mono">
-            <div class="px-3 py-1 bg-green-500/10 border border-green-500/30 text-green-400 rounded-full">● API-FOOTBALL CONNECTED</div>
+        <div id="connectionStatus" class="text-[10px] font-mono text-green-500 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20">
+            CONNECTED TO API-SPORTS
         </div>
     </header>
 
@@ -29,53 +30,55 @@
         
         <aside class="lg:col-span-3 space-y-6">
             <div class="glass-panel p-6 rounded-3xl shadow-2xl">
-                <h2 class="text-xs font-black text-blue-500 uppercase mb-6 tracking-widest italic">Operasyon Merkezi</h2>
+                <h2 class="text-[10px] font-black text-blue-500 uppercase mb-6 tracking-[0.2em]">Sorgu Parametreleri</h2>
                 
-                <div class="space-y-4">
-                    <label class="block text-[10px] text-slate-500 font-bold uppercase">Hedef Lig</label>
-<select id="leagueID" class="w-full bg-slate-800/50 p-3 rounded-xl border border-slate-700 text-sm focus:border-blue-500 outline-none transition-all">
-    <optgroup label="Popüler Ligler">
-        <option value="203">Türkiye: Süper Lig</option>
-        <option value="39">İngiltere: Premier League</option>
-        <option value="140">İspanya: La Liga</option>
-        <option value="78">Almanya: Bundesliga</option>
-        <option value="135">İtalya: Serie A</option>
-        <option value="61">Fransa: Ligue 1</option>
-    </optgroup>
-    <optgroup label="Yetenek Havuzları">
-        <option value="71">Brezilya: Serie A</option>
-        <option value="128">Arjantin: Liga Profesional</option>
-        <option value="94">Portekiz: Primeira Liga</option>
-        <option value="88">Hollanda: Eredivisie</option>
-        <option value="144">Belçika: Pro League</option>
-        <option value="40">İngiltere: Championship</option>
-    </optgroup>
-    <optgroup label="Diğer">
-        <option value="253">ABD: MLS</option>
-        <option value="307">Suudi Arabistan: Pro League</option>
-    </optgroup>
-</select>
-                    <label class="block text-[10px] text-slate-500 font-bold uppercase">Rol Tanımı</label>
-                    <select id="position" class="w-full bg-slate-800/50 p-3 rounded-xl border border-slate-700 text-sm focus:border-blue-500 outline-none transition-all">
-                        <option value="Goalkeeper">Modern Kaleci</option>
-                        <option value="Defender">Savunma Hattı</option>
-                        <option value="Midfielder">Orta Saha Orkestrası</option>
-                        <option value="Attacker">Hücum Gücü</option>
-                    </select>
-
-                    <div class="pt-6">
-                        <button onclick="startScouting()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95">
-                            ANALİZİ BAŞLAT
-                        </button>
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-[10px] text-slate-500 font-bold uppercase mb-2">Hedef Lig</label>
+                        <select id="leagueID" class="w-full bg-slate-800/50 p-3 rounded-xl border border-slate-700 text-sm focus:border-blue-500 outline-none transition-all">
+                            <optgroup label="Popüler Ligler">
+                                <option value="203">Turkiye: Süper Lig</option>
+                                <option value="39">Ingiltere: Premier League</option>
+                                <option value="140">Ispanya: La Liga</option>
+                                <option value="78">Almanya: Bundesliga</option>
+                                <option value="135">Italya: Serie A</option>
+                                <option value="61">Fransa: Ligue 1</option>
+                            </optgroup>
+                            <optgroup label="Wonderkid Havzaları">
+                                <option value="71">Brezilya: Serie A</option>
+                                <option value="128">Arjantin: Liga Profesional</option>
+                                <option value="94">Portekiz: Primeira Liga</option>
+                                <option value="88">Hollanda: Eredivisie</option>
+                                <option value="144">Belçika: Pro League</option>
+                            </optgroup>
+                        </select>
                     </div>
+
+                    <div>
+                        <label class="block text-[10px] text-slate-500 font-bold uppercase mb-2">Mevki</label>
+                        <select id="position" class="w-full bg-slate-800/50 p-3 rounded-xl border border-slate-700 text-sm focus:border-blue-500 outline-none transition-all">
+                            <option value="Goalkeeper">Kaleci (GK)</option>
+                            <option value="Defender">Defans (DC/DL/DR)</option>
+                            <option value="Midfielder">Orta Saha (MC/DM/AM)</option>
+                            <option value="Attacker">Hücum (ST/LW/RW)</option>
+                        </select>
+                    </div>
+
+                    <button onclick="executeScouting()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95">
+                        ANALIZI BASLAT
+                    </button>
                 </div>
+            </div>
+
+            <div class="p-4 bg-blue-900/10 border border-blue-900/30 rounded-2xl text-[11px] text-slate-400 italic">
+                <strong>Gözlemci Notu:</strong> Brezilya ve Arjantin ligleri, yüksek potansiyelli (Wonderkid) oyuncular için en verimli kaynaklardır.
             </div>
         </aside>
 
         <main class="lg:col-span-9">
             <div id="loader" class="hidden flex flex-col items-center justify-center py-40">
-                <div class="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                <p class="mt-4 cyber-font text-[10px] text-blue-500 tracking-[0.3em] animate-pulse">SİSTEM VERİLERİ ANALİZ EDİYOR...</p>
+                <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="mt-4 cyber-font text-[10px] text-blue-500 tracking-[0.3em] animate-pulse">VERI TABANI TARANIYOR...</p>
             </div>
 
             <div id="scoutGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -89,7 +92,7 @@
             HOST: 'v3.football.api-sports.io'
         };
 
-        async function startScouting() {
+        async function executeScouting() {
             const league = document.getElementById('leagueID').value;
             const pos = document.getElementById('position').value;
             const grid = document.getElementById('scoutGrid');
@@ -107,68 +110,73 @@
                 const players = response.data.response;
                 loader.classList.add('hidden');
 
+                if (!players || players.length === 0) {
+                    grid.innerHTML = `<div class="col-span-full text-center p-20 text-slate-500 border border-dashed border-slate-800 rounded-3xl">Bu lig/mevki için güncel veri bulunamadı.</div>`;
+                    return;
+                }
+
                 players.filter(p => p.statistics[0].games.position === pos).slice(0, 15).forEach(data => {
-                    const aiReport = generateAIReport(data);
-                    renderPlayerCard(data, aiReport);
+                    const aiStats = runGrowthSim(data);
+                    renderPlayer(data, aiStats);
                 });
 
             } catch (err) {
-                console.error("Scout Error:", err);
+                console.error("API Hatası:", err);
                 loader.classList.add('hidden');
+                alert("Veri çekilemedi. API kotanızı kontrol edin.");
             }
         }
 
-        function generateAIReport(data) {
-            const stats = data.statistics[0];
+        function runGrowthSim(data) {
             const age = data.player.age;
-            const rating = parseFloat(stats.games.rating || 0);
+            const rating = parseFloat(data.statistics[0].games.rating || 0);
             
-            let status = age < 22 ? "WONDERKID" : "STREAKING";
-            let recommendation = rating > 7.2 ? "HEMEN AL" : "GÖZLEMDE TUT";
+            // AI FM Score Hesaplama
+            let baseScore = rating * 10;
+            if (age < 21) baseScore += 15; // Wonderkid bonusu
+            if (age > 30) baseScore -= 5;  // Yaşlılık devalüasyonu
             
-            // FM Tarzı Puanlama (100 üzerinden)
-            let score = (rating * 10) + (age < 23 ? 15 : 5);
-            return { score: Math.min(Math.round(score), 99), status, recommendation };
+            let recommendation = rating > 7.1 ? "KRITIK HEDEF" : "IZLEMEYE DEVAM";
+            let trend = age < 23 ? "YUKSELEN YILDIZ" : "DENEYIMLI";
+
+            return { score: Math.round(Math.min(baseScore, 99)), recommendation, trend };
         }
 
-        function renderPlayerCard(data, ai) {
+        function renderPlayer(data, ai) {
             const grid = document.getElementById('scoutGrid');
             const p = data.player;
             const s = data.statistics[0];
 
             grid.innerHTML += `
-                <div class="glass-panel rounded-3xl overflow-hidden hover:border-blue-400/50 transition-all group">
+                <div class="glass-panel player-card rounded-3xl overflow-hidden transition-all shadow-xl">
                     <div class="p-6">
                         <div class="flex justify-between items-start mb-6">
                             <div class="relative">
-                                <img src="${p.photo}" class="w-20 h-20 rounded-2xl object-cover bg-slate-800 ring-4 ring-slate-900 shadow-2xl">
-                                <span class="absolute -bottom-2 -right-2 bg-blue-600 text-[10px] font-black px-2 py-1 rounded-lg">${p.age}</span>
+                                <img src="${p.photo}" class="w-16 h-16 rounded-2xl object-cover bg-slate-800 ring-2 ring-slate-700">
+                                <div class="absolute -bottom-2 -right-2 bg-blue-600 text-[9px] font-black px-2 py-1 rounded-md">${p.age} YAS</div>
                             </div>
                             <div class="text-right">
-                                <p class="cyber-font text-3xl font-black text-white">${ai.score}</p>
-                                <p class="text-[8px] font-bold text-blue-500 uppercase tracking-widest italic">PRO RATING</p>
+                                <p class="cyber-font text-3xl font-black text-blue-500">${ai.score}</p>
+                                <p class="text-[7px] font-bold text-slate-500 uppercase tracking-widest">AI FM SCORE</p>
                             </div>
                         </div>
 
-                        <h3 class="font-bold text-lg text-white group-hover:text-blue-400 transition-colors truncate">${p.name}</h3>
-                        <p class="text-[10px] text-slate-500 font-bold uppercase mb-4">${s.team.name}</p>
+                        <h3 class="font-bold text-base text-white truncate mb-1">${p.name}</h3>
+                        <p class="text-[10px] text-blue-400 font-bold uppercase tracking-tighter mb-4">${s.team.name}</p>
 
-                        <div class="grid grid-cols-2 gap-3 mb-6">
-                            <div class="bg-slate-800/50 p-3 rounded-xl">
-                                <p class="text-[8px] text-slate-500 uppercase font-bold">Maç/Rating</p>
-                                <p class="text-xs font-bold">${s.games.appearences} / <span class="text-yellow-500">${parseFloat(s.games.rating).toFixed(1)}</span></p>
+                        <div class="grid grid-cols-2 gap-2 mb-6 text-[10px]">
+                            <div class="bg-slate-800/40 p-2 rounded-lg border border-slate-700/50 text-center">
+                                <span class="block text-slate-500 font-bold mb-1 uppercase">Rating</span>
+                                <span class="text-white font-black">${parseFloat(s.games.rating || 0).toFixed(2)}</span>
                             </div>
-                            <div class="bg-slate-800/50 p-3 rounded-xl">
-                                <p class="text-[8px] text-slate-500 uppercase font-bold">Karar</p>
-                                <p class="text-[10px] font-black text-green-400 uppercase tracking-tighter">${ai.recommendation}</p>
+                            <div class="bg-slate-800/40 p-2 rounded-lg border border-slate-700/50 text-center">
+                                <span class="block text-slate-500 font-bold mb-1 uppercase">Karar</span>
+                                <span class="text-green-400 font-black">${ai.recommendation}</span>
                             </div>
                         </div>
 
-                        <div class="space-y-2">
-                            <div class="flex justify-between text-[9px] font-bold text-slate-500 uppercase"><span>Fiziksel Kondisyon</span><span>%${85 + Math.floor(Math.random() * 15)}</span></div>
-                            <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
-                                <div class="bg-gradient-to-r from-blue-600 to-cyan-400 h-full" style="width: 90%"></div>
-                            </div>
+                        <div class="pt-4 border-t border-slate-800/50">
+                            <p class="text-[9px] text-slate-500 italic leading-relaxed">"AI Analizi: ${p.name}, ${ai.trend} profilinde. 2027 sezonuna kadar potansiyelinin zirvesine ulaşması bekleniyor."</p>
                         </div>
                     </div>
                 </div>
